@@ -38,6 +38,15 @@ export class BePersistentController implements BePersistentActions {
                 });
             }
         }
+        //populate proxy with value from sessionStorage
+        //written entirely by copilot!
+        if(what.value && where.sessionStorage){
+            const value = sessionStorage.getItem(proxy.id);
+            if(value){
+                (<any>proxy).value = value;
+            }
+        }
+        
     }
 }
 

@@ -36,6 +36,14 @@ export class BePersistentController {
                 });
             }
         }
+        //populate proxy with value from sessionStorage
+        //written entirely by copilot!
+        if (what.value && where.sessionStorage) {
+            const value = sessionStorage.getItem(proxy.id);
+            if (value) {
+                proxy.value = value;
+            }
+        }
     }
 }
 const tagName = 'be-persistent';
