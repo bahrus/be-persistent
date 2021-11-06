@@ -17,7 +17,7 @@ export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
     what: {[key in keyof TObjectToPersist]: boolean | string},
     where: PersistenceStorage,
     when: {[key in keyof TEventMap]: boolean | EventCriteria},
-    
+    restoreIf: RestoreCriteria,
 }
 
 export interface PersistenceStorage{
@@ -28,5 +28,5 @@ export interface PersistenceStorage{
 export interface EventCriteria{}
 
 export interface RestoreCriteria{
-    equals: string,
+    always?: boolean,
 }

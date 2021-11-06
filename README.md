@@ -26,34 +26,27 @@ The syntax above is short-hand for:
         "sessionStorage": true,
         "autogenId": true,
     },
-    "restoreWhen":{
-        "equals": "defaultValue"
+    "restoreIf":{
+        "always": true,
     }
 }'>
 ```
 
 On refreshing the browser, the input's value will be retained.
 
-Example 2:  Criteria
+Example 2:  Criteria [TODO]
 
 ```html
 <input be-persistent='{
-    "what":{
-        "value": true
-    },
-    "when":{
-        "input": true
-    },
-    "where":{
-        "sessionStorage": true
-    },
-    "restoreWhen":{
-        "isDefault"
+    "restoreIf":{
+        "value":{
+            "eq": "defaultValue"
+        }
     }
 }'>
 ```
 
-Example 2:  Isolated storage -- single element
+Example 3:  IBD [TODO]
 
 ```html
 <input be-persistent='{

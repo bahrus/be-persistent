@@ -13,6 +13,9 @@ const defaultSettings: PersistenceParams = {
   where:{
       sessionStorage: true,
       autogenId: true,
+  },
+  restoreIf:{
+      always: true,
   }
 }
 export class BePersistentController implements BePersistentActions {
@@ -75,7 +78,7 @@ export class BePersistentController implements BePersistentActions {
     }
 
     async onParams({params, proxy}: this){
-        const {what, when, where} = params;
+        const {what, when, where, restoreIf} = params;
         //persist proxy to storage
         let fullPath = proxy.id;
         if(where.autogenId){
@@ -96,7 +99,7 @@ export class BePersistentController implements BePersistentActions {
                 }
             }
             //populate proxy with value from sessionStorage
-            if(what.value && where.sessionStorage){
+            if(restoreIf.always){
                 const rawString = sessionStorage.getItem(fullPath!);
                 const obj = JSON.parse(rawString!);
                 this.setPropsFromStore(this, obj);
