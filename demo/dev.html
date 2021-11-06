@@ -7,6 +7,19 @@
     <title>Document</title>
 </head>
 <body>
-    
+    <input be-persistent id=test>
+    <script type=importmap>
+    {
+        "imports": {
+            "trans-render/": "../node_modules/trans-render/",
+            "xtal-element/": "../node_modules/xtal-element/",
+            "be-decorated/": "../node_modules/be-decorated/",
+            "be-hive/": "../node_modules/be-hive/"
+        }
+    }
+    </script>
+    <script type=module>
+        import '../be-persistent.js';
+    </script>
 </body>
 </html>

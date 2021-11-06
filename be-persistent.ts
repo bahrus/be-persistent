@@ -1,5 +1,6 @@
 import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BePersistentActions, BePersistentProps, BePersistentVirtualProps, PersistenceParams} from './types';
+import {register} from 'be-hive/register.js';
 
 export class BePersistentController implements BePersistentActions {
     intro(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
@@ -11,12 +12,30 @@ export class BePersistentController implements BePersistentActions {
         } else {
             params = {
                 what:{
-                    "value": true,
+                    value: true,
                 },
-                when:['input'],
+                when:{
+                    input: true,
+                },
                 where:{
                     sessionStorage: true,
                 }
+            }
+        }
+        proxy.params = params;
+    }
+
+    onParams({params, proxy}: this){
+        const {what, when, where} = params;
+        for(const evtType in when){
+            if(when[evtType]){
+                proxy.addEventListener(evtType, () => {
+                    if(what.value){
+                        if(where.sessionStorage){
+                            sessionStorage.setItem(proxy.id, (<any>proxy).value);
+                        }
+                    }
+                });
             }
         }
     }
@@ -39,10 +58,17 @@ define<
             ifWantsToBe,
             noParse: true,
             forceVisible: true,
-            intro: 'intro'
+            intro: 'intro',
+            virtualProps: ['params']
+        },
+        actions:{
+            onParams: {
+                ifAllOf: ['params']
+            },
         }
     },
     complexPropDefaults:{
         controller: BePersistentController
     }
 });
+register(ifWantsToBe, upgrade, tagName);

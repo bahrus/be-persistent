@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "be-decorated": "0.0.40"
+    "be-decorated": "0.0.40",
+    "be-hive": "0.0.9"
   },
   "devDependencies": {
     "xtal-test": "0.0.52"
