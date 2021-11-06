@@ -1,7 +1,10 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
+import { $hell } from 'xtal-shell/$hell.js';
 export class BePersistentController {
+    #target;
     intro(proxy, target, beDecorProps) {
+        this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`).trim();
         const firstChar = attr[0];
         let params;
@@ -25,12 +28,14 @@ export class BePersistentController {
     }
     onParams({ params, proxy }) {
         const { what, when, where } = params;
+        //persist proxy to storage
+        const fullPath = $hell.getFullPath(this.#target);
         for (const evtType in when) {
             if (when[evtType]) {
                 proxy.addEventListener(evtType, () => {
                     if (what.value) {
                         if (where.sessionStorage) {
-                            sessionStorage.setItem(proxy.id, proxy.value);
+                            sessionStorage.setItem(fullPath, proxy.value);
                         }
                     }
                 });
@@ -39,7 +44,7 @@ export class BePersistentController {
         //populate proxy with value from sessionStorage
         //written entirely by copilot!
         if (what.value && where.sessionStorage) {
-            const value = sessionStorage.getItem(proxy.id);
+            const value = sessionStorage.getItem(fullPath);
             if (value) {
                 proxy.value = value;
             }
