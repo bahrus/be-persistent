@@ -1,6 +1,7 @@
 import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BePersistentActions, BePersistentProps, BePersistentVirtualProps, PersistenceParams} from './types';
 import {register} from 'be-hive/register.js';
+import {nudge} from 'trans-render/lib/nudge.js';
 
 const defaultSettings: PersistenceParams = {
   what:{
@@ -53,6 +54,26 @@ export class BePersistentController implements BePersistentActions {
         return whatToStore;
     }
 
+    setPropsFromStore({params, proxy}: this, val: any){
+        const {what} = params;
+        for(const key in what){
+            const whatKey = what[key];
+            switch(typeof whatKey){
+                case 'string':
+                    (<any>proxy)[key] = val[whatKey] ;
+                    break;
+                case 'boolean':
+                    if(whatKey){
+                        (<any>proxy)[key] = val[key]; 
+                    }
+                    break;
+                default:
+                    throw 'NI';//Not Implemented
+            }
+
+        }
+    }
+
     async onParams({params, proxy}: this){
         const {what, when, where} = params;
         //persist proxy to storage
@@ -76,14 +97,13 @@ export class BePersistentController implements BePersistentActions {
             }
             //populate proxy with value from sessionStorage
             if(what.value && where.sessionStorage){
-                const value = sessionStorage.getItem(fullPath!);
-                if(value){
-                    (<any>proxy).value = value;
-                }
+                const rawString = sessionStorage.getItem(fullPath!);
+                const obj = JSON.parse(rawString!);
+                this.setPropsFromStore(this, obj);
             }
         }
 
-        
+        nudge(this.#target!);
     }
 }
 

@@ -1,5 +1,6 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
+import { nudge } from 'trans-render/lib/nudge.js';
 const defaultSettings = {
     what: {
         value: true,
@@ -49,6 +50,24 @@ export class BePersistentController {
         }
         return whatToStore;
     }
+    setPropsFromStore({ params, proxy }, val) {
+        const { what } = params;
+        for (const key in what) {
+            const whatKey = what[key];
+            switch (typeof whatKey) {
+                case 'string':
+                    proxy[key] = val[whatKey];
+                    break;
+                case 'boolean':
+                    if (whatKey) {
+                        proxy[key] = val[key];
+                    }
+                    break;
+                default:
+                    throw 'NI'; //Not Implemented
+            }
+        }
+    }
     async onParams({ params, proxy }) {
         const { what, when, where } = params;
         //persist proxy to storage
@@ -72,12 +91,12 @@ export class BePersistentController {
             }
             //populate proxy with value from sessionStorage
             if (what.value && where.sessionStorage) {
-                const value = sessionStorage.getItem(fullPath);
-                if (value) {
-                    proxy.value = value;
-                }
+                const rawString = sessionStorage.getItem(fullPath);
+                const obj = JSON.parse(rawString);
+                this.setPropsFromStore(this, obj);
             }
         }
+        nudge(this.#target);
     }
 }
 const tagName = 'be-persistent';
