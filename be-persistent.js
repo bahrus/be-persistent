@@ -1,40 +1,45 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
+const defaultSettings = {
+    what: {
+        value: true,
+    },
+    when: {
+        input: true,
+    },
+    where: {
+        sessionStorage: true,
+        autogenId: true,
+    }
+};
 export class BePersistentController {
     #target;
     intro(proxy, target, beDecorProps) {
         this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`).trim();
-        const firstChar = attr[0];
-        let params;
-        if ('[{'.includes(firstChar)) {
-            params = JSON.parse(attr);
-        }
-        else {
-            params = {
-                what: {
-                    value: true,
-                },
-                when: {
-                    input: true,
-                },
-                where: {
-                    sessionStorage: true,
-                }
-            };
+        let params = { ...defaultSettings };
+        if (attr !== '') {
+            const firstChar = attr[0];
+            if ('[{'.includes(firstChar)) {
+                params = Object.assign(params, JSON.parse(attr));
+            }
+            else {
+                params.what.value = attr;
+            }
         }
         proxy.params = params;
     }
     async onParams({ params, proxy }) {
         const { what, when, where } = params;
         //persist proxy to storage
+        let fullPath = proxy.id;
+        if (where.autogenId) {
+            const { $hell } = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
+            fullPath = $hell.getFullPath(this.#target);
+            if (proxy.id === '')
+                proxy.id = fullPath;
+        }
         if (where.sessionStorage !== undefined) {
-            const ssConfig = where.sessionStorage;
-            let fullPath;
-            if (typeof ssConfig === 'boolean') {
-                const { $hell } = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-                fullPath = $hell.getFullPath(this.#target);
-            }
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, () => {

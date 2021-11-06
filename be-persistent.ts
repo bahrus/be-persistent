@@ -2,26 +2,30 @@ import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BePersistentActions, BePersistentProps, BePersistentVirtualProps, PersistenceParams} from './types';
 import {register} from 'be-hive/register.js';
 
+const defaultSettings: PersistenceParams = {
+  what:{
+      value: true,
+  },
+  when:{
+      input: true,
+  },
+  where:{
+      sessionStorage: true,
+      autogenId: true,
+  }
+}
 export class BePersistentController implements BePersistentActions {
     #target: Element | undefined;
     intro(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
         this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`)!.trim();
-        const firstChar = attr[0];
-        let params: PersistenceParams;
-        if('[{'.includes(firstChar)){
-            params = JSON.parse(attr);
-        } else {
-            params = {
-                what:{
-                    value: true,
-                },
-                when:{
-                    input: true,
-                },
-                where:{
-                    sessionStorage: true,
-                }
+        let params: PersistenceParams = {...defaultSettings};
+        if(attr !== ''){
+            const firstChar = attr[0];
+            if('[{'.includes(firstChar)){
+                params = Object.assign(params, JSON.parse(attr));
+            } else {
+                params.what.value = attr;
             }
         }
         proxy.params = params;
@@ -32,13 +36,14 @@ export class BePersistentController implements BePersistentActions {
     async onParams({params, proxy}: this){
         const {what, when, where} = params;
         //persist proxy to storage
+        let fullPath = proxy.id;
+        if(where.autogenId){
+            const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
+            fullPath = $hell.getFullPath(this.#target!);
+            if(proxy.id === '') proxy.id = fullPath;
+        }
         if(where.sessionStorage !== undefined){
-            const ssConfig = where.sessionStorage;
-            let fullPath: string | undefined;
-            if(typeof ssConfig === 'boolean'){
-                const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-                fullPath = $hell.getFullPath(this.#target!);
-            } 
+
             for(const evtType in when){
                 if(when[evtType]){
                     proxy.addEventListener(evtType, () => {

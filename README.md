@@ -10,9 +10,48 @@ Example 1:  Default settings;
 
 What this does:
 
-Stores input's value in session storage (key is based on location within the dom).
+Stores input's value in session storage (key is based on location within the DOM).
 
-On refreshing the browser, if the input element equals the defaultValue then the value is set from storage, 
+The syntax above is short-hand for:
+
+```html
+<input be-persistent='{
+    "what":{
+        "value": true
+    },
+    "when":{
+        "input": true
+    },
+    "where":{
+        "sessionStorage": true,
+        "autogenId": true,
+    },
+    "restoreWhen":{
+        "equals": "defaultValue"
+    }
+}'>
+```
+
+On refreshing the browser, the input's value will be retained.
+
+Example 2:  Criteria
+
+```html
+<input be-persistent='{
+    "what":{
+        "value": true
+    },
+    "when":{
+        "input": true
+    },
+    "where":{
+        "sessionStorage": true
+    },
+    "restoreWhen":{
+        "isDefault"
+    }
+}'>
+```
 
 Example 2:  Isolated storage -- single element
 
@@ -30,3 +69,5 @@ Example 2:  Isolated storage -- single element
     }
 }'>
 ```
+
+Example 3:  Criteria
