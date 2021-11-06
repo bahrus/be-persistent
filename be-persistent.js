@@ -1,6 +1,5 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
-import { $hell } from 'xtal-shell/$hell.js';
 export class BePersistentController {
     #target;
     intro(proxy, target, beDecorProps) {
@@ -26,27 +25,34 @@ export class BePersistentController {
         }
         proxy.params = params;
     }
-    onParams({ params, proxy }) {
+    async onParams({ params, proxy }) {
         const { what, when, where } = params;
         //persist proxy to storage
-        const fullPath = $hell.getFullPath(this.#target);
-        for (const evtType in when) {
-            if (when[evtType]) {
-                proxy.addEventListener(evtType, () => {
-                    if (what.value) {
-                        if (where.sessionStorage) {
-                            sessionStorage.setItem(fullPath, proxy.value);
-                        }
-                    }
-                });
+        if (where.sessionStorage !== undefined) {
+            const ssConfig = where.sessionStorage;
+            let fullPath;
+            if (typeof ssConfig === 'boolean') {
+                const { $hell } = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
+                fullPath = $hell.getFullPath(this.#target);
             }
-        }
-        //populate proxy with value from sessionStorage
-        //written entirely by copilot!
-        if (what.value && where.sessionStorage) {
-            const value = sessionStorage.getItem(fullPath);
-            if (value) {
-                proxy.value = value;
+            for (const evtType in when) {
+                if (when[evtType]) {
+                    proxy.addEventListener(evtType, () => {
+                        if (what.value) {
+                            if (where.sessionStorage) {
+                                sessionStorage.setItem(fullPath, proxy.value);
+                            }
+                        }
+                    });
+                }
+            }
+            //populate proxy with value from sessionStorage
+            //written entirely by copilot!
+            if (what.value && where.sessionStorage) {
+                const value = sessionStorage.getItem(fullPath);
+                if (value) {
+                    proxy.value = value;
+                }
             }
         }
     }
@@ -67,7 +73,8 @@ define({
         },
         actions: {
             onParams: {
-                ifAllOf: ['params']
+                ifAllOf: ['params'],
+                async: true,
             },
         }
     },
