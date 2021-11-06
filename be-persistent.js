@@ -29,6 +29,26 @@ export class BePersistentController {
         }
         proxy.params = params;
     }
+    getWhatToStore({ params, proxy }) {
+        const { what } = params;
+        const whatToStore = {};
+        for (const key in what) {
+            const whatKey = what[key];
+            switch (typeof whatKey) {
+                case 'string':
+                    whatToStore[whatKey] = proxy[key];
+                    break;
+                case 'boolean':
+                    if (whatKey) {
+                        whatToStore[key] = proxy[key];
+                    }
+                    break;
+                default:
+                    throw 'NI'; //Not Implemented
+            }
+        }
+        return whatToStore;
+    }
     async onParams({ params, proxy }) {
         const { what, when, where } = params;
         //persist proxy to storage
@@ -43,16 +63,14 @@ export class BePersistentController {
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, () => {
-                        if (what.value) {
-                            if (where.sessionStorage) {
-                                sessionStorage.setItem(fullPath, proxy.value);
-                            }
+                        const whatToStore = this.getWhatToStore(this);
+                        if (where.sessionStorage) {
+                            sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                         }
                     });
                 }
             }
             //populate proxy with value from sessionStorage
-            //written entirely by copilot!
             if (what.value && where.sessionStorage) {
                 const value = sessionStorage.getItem(fullPath);
                 if (value) {

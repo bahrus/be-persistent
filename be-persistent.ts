@@ -31,7 +31,27 @@ export class BePersistentController implements BePersistentActions {
         proxy.params = params;
     }
 
+    getWhatToStore({params, proxy}: this){
+        const {what} = params;
+        const whatToStore: any = {};
+        for(const key in what){
+            const whatKey = what[key];
+            switch(typeof whatKey){
+                case 'string':
+                    whatToStore[whatKey] = (<any>proxy)[key];
+                    break;
+                case 'boolean':
+                    if(whatKey){
+                        whatToStore[key] = (<any>proxy)[key];
+                    }
+                    break;
+                default:
+                    throw 'NI';//Not Implemented
+            }
 
+        }
+        return whatToStore;
+    }
 
     async onParams({params, proxy}: this){
         const {what, when, where} = params;
@@ -42,21 +62,19 @@ export class BePersistentController implements BePersistentActions {
             fullPath = $hell.getFullPath(this.#target!);
             if(proxy.id === '') proxy.id = fullPath;
         }
-        if(where.sessionStorage !== undefined){
 
+        if(where.sessionStorage !== undefined){
             for(const evtType in when){
                 if(when[evtType]){
                     proxy.addEventListener(evtType, () => {
-                        if(what.value){
-                            if(where.sessionStorage){
-                                sessionStorage.setItem(fullPath!, (<any>proxy).value);
-                            }
+                        const whatToStore = this.getWhatToStore(this);
+                        if(where.sessionStorage){
+                            sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
                         }
                     });
                 }
             }
             //populate proxy with value from sessionStorage
-            //written entirely by copilot!
             if(what.value && where.sessionStorage){
                 const value = sessionStorage.getItem(fullPath!);
                 if(value){
