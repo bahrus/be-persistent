@@ -32,9 +32,19 @@ The syntax above is short-hand for:
 }'>
 ```
 
+Example 2:  Store to IDB
+
+```html
+<input be-persistent='{
+    "where":{
+        "idb": true
+    }
+}'>
+```
+
 On refreshing the browser, the input's value will be retained.
 
-Example 2:  Criteria [TODO]
+Example tbd:  Criteria [TODO]
 
 ```html
 <input be-persistent='{
@@ -46,7 +56,7 @@ Example 2:  Criteria [TODO]
 }'>
 ```
 
-Example 3:  IBD [TODO]
+Example tbd:  IBD [TODO]
 
 ```html
 <input be-persistent='{

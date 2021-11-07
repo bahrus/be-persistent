@@ -6,7 +6,8 @@
   "dependencies": {
     "be-decorated": "0.0.40",
     "be-hive": "0.0.9",
-    "xtal-shell": "0.0.25"
+    "xtal-shell": "0.0.25",
+    "idb-keyval": "6.0.3"
   },
   "devDependencies": {
     "xtal-test": "0.0.52"

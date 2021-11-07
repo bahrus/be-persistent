@@ -1,6 +1,7 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
 import { nudge } from 'trans-render/lib/nudge.js';
+import { mergeDeep } from 'trans-render/lib/mergeDeep.js';
 const defaultSettings = {
     what: {
         value: true,
@@ -25,7 +26,8 @@ export class BePersistentController {
         if (attr !== '') {
             const firstChar = attr[0];
             if ('[{'.includes(firstChar)) {
-                params = Object.assign(params, JSON.parse(attr));
+                //params = Object.assign(params, JSON.parse(attr));
+                params = mergeDeep(params, JSON.parse(attr));
             }
             else {
                 params.what.value = attr;
@@ -81,22 +83,41 @@ export class BePersistentController {
             if (proxy.id === '')
                 proxy.id = fullPath;
         }
-        if (where.sessionStorage !== undefined) {
+        if (where.idb !== undefined) {
+            const { set, get } = await import('idb-keyval/dist/index.js');
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, () => {
                         const whatToStore = this.getWhatToStore(this);
-                        if (where.sessionStorage) {
-                            sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
-                        }
+                        set(fullPath, whatToStore);
+                    });
+                }
+            }
+            if (restoreIf.always) {
+                const val = await get(fullPath);
+                if (val !== undefined) {
+                    this.setPropsFromStore(this, val);
+                }
+            }
+        }
+        else if (where.sessionStorage !== undefined) {
+            for (const evtType in when) {
+                if (when[evtType]) {
+                    proxy.addEventListener(evtType, () => {
+                        const whatToStore = this.getWhatToStore(this);
+                        //if(where.sessionStorage){
+                        sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
+                        //}
                     });
                 }
             }
             //populate proxy with value from sessionStorage
             if (restoreIf.always) {
                 const rawString = sessionStorage.getItem(fullPath);
-                const obj = JSON.parse(rawString);
-                this.setPropsFromStore(this, obj);
+                if (rawString !== null) {
+                    const obj = JSON.parse(rawString);
+                    this.setPropsFromStore(this, obj);
+                }
             }
         }
         nudge(this.#target);

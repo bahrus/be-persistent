@@ -22,6 +22,7 @@ export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
 
 export interface PersistenceStorage{
     sessionStorage?: boolean,
+    idb?: boolean,
     autogenId?: boolean,
 }
 
