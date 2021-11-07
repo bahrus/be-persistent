@@ -1,8 +1,26 @@
 {
   "name": "be-persistent",
   "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "keywords": [
+    "web-components",
+    "web-component",
+    "custom-element",
+    "custom-elements",
+    "persist",
+    "idb",
+    "session-storage"
+  ],
+  "description": "be-persistent is a behavior/decorator that provides persistence storage to native DOM and custom elements.",
+  "main": "be-persistent.js",
+  "module": "be-persistent.js",
+  "exports": {
+    ".": "./be-persistent.js",
+    "./be-persistent.js": "./be-persistent.js"
+  },
+  "files": [
+    "*.*"
+  ],
+  "types": "types.d.ts",
   "dependencies": {
     "be-decorated": "0.0.40",
     "be-hive": "0.0.9",
@@ -10,17 +28,19 @@
     "idb-keyval": "6.0.3"
   },
   "devDependencies": {
-    "xtal-test": "0.0.52"
+    "xtal-test": "0.0.52",
+    "@skypack/package-check": "0.2.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/test-all.js",
+    "package-check": "package-check",
     "serve": "node node_modules/xtal-test/serve.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bahrus/be-persistent.git"
   },
-  "author": "",
+  "author": "anderson.bruce.b@gmail.com",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bahrus/be-persistent/issues"

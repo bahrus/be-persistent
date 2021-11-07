@@ -1,6 +1,6 @@
 # be-persistent
 
-be-persistent is a behavior/decorator alternative to [purr-sist](https://github.com/bahrus/purr-sist)
+be-persistent is a behavior/decorator alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
 Example 1:  Default settings;
 
