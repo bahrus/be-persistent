@@ -42,7 +42,7 @@ Example 2:  Store to IDB
 }'>
 ```
 
-On refreshing the browser, the input's value will be retained.
+On refreshing the browser, the input's value is retained.
 
 Example tbd:  Criteria [TODO]
 
