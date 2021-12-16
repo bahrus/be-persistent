@@ -146,7 +146,6 @@ define<
             upgrade,
             ifWantsToBe,
             noParse: true,
-            forceVisible: true,
             intro: 'intro',
             virtualProps: ['params']
         },
