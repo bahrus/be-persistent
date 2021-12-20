@@ -2,13 +2,8 @@ import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
 import { nudge } from 'trans-render/lib/nudge.js';
 import { mergeDeep } from 'trans-render/lib/mergeDeep.js';
+import { camelToLisp } from 'trans-render/lib/camelToLisp.js';
 const defaultSettings = {
-    what: {
-        value: true,
-    },
-    when: {
-        input: true,
-    },
     where: {
         sessionStorage: true,
         autogenId: true,
@@ -17,20 +12,43 @@ const defaultSettings = {
         always: true,
     }
 };
+const inputSettings = {
+    ...defaultSettings,
+    what: {
+        value: true,
+    },
+    when: {
+        input: true,
+    },
+};
 export class BePersistentController {
     #target;
     intro(proxy, target, beDecorProps) {
         this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`).trim();
-        let params = { ...defaultSettings };
+        let params;
         if (attr !== '') {
+            params = { ...defaultSettings };
             const firstChar = attr[0];
             if ('[{'.includes(firstChar)) {
                 //params = Object.assign(params, JSON.parse(attr));
                 params = mergeDeep(params, JSON.parse(attr));
             }
             else {
-                params.what.value = attr;
+                params.what = {
+                    [attr]: true,
+                };
+                params.when = {
+                    [camelToLisp(attr) + '-changed']: true,
+                };
+            }
+        }
+        else {
+            if (target.localName === 'input') {
+                params = { ...inputSettings };
+            }
+            else {
+                throw 'NI'; //Not Implemented
             }
         }
         proxy.params = params;
