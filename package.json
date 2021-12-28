@@ -22,8 +22,8 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.56",
-    "be-hive": "0.0.15",
+    "be-decorated": "0.0.57",
+    "be-hive": "0.0.16",
     "xtal-shell": "0.0.25",
     "idb-keyval": "6.0.3"
   },
