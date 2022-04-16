@@ -22,13 +22,13 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.81",
-    "be-hive": "0.0.31",
-    "xtal-shell": "0.0.25",
+    "be-decorated": "0.0.110",
+    "be-hive": "0.0.43",
+    "xtal-shell": "0.0.27",
     "idb-keyval": "6.1.0"
   },
   "devDependencies": {
-    "xtal-test": "0.0.55",
+    "xtal-test": "0.0.56",
     "@skypack/package-check": "0.2.2"
   },
   "scripts": {
