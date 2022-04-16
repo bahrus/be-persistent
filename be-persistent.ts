@@ -23,6 +23,12 @@ const inputSettings: PersistenceParams = {
     when:{
         input: true,
     },
+    eventToFire:{
+        type: 'input',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+    }
 }
 
 
@@ -79,7 +85,7 @@ export class BePersistentController implements BePersistentActions {
     }
 
     setPropsFromStore({params, proxy}: this, val: any){
-        const {what} = params;
+        const {what, eventToFire} = params;
         for(const key in what){
             const whatKey = what[key];
             switch(typeof whatKey){
@@ -95,6 +101,9 @@ export class BePersistentController implements BePersistentActions {
                     throw 'NI';//Not Implemented
             }
 
+        }
+        if(eventToFire !== undefined){
+            proxy.dispatchEvent(new Event(eventToFire.type, eventToFire));
         }
     }
 
@@ -172,7 +181,6 @@ define<
         actions:{
             onParams: {
                 ifAllOf: ['params'],
-                async: true,
             },
         }
     },

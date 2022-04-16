@@ -20,6 +20,12 @@ const inputSettings = {
     when: {
         input: true,
     },
+    eventToFire: {
+        type: 'input',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+    }
 };
 export class BePersistentController {
     #target;
@@ -74,7 +80,7 @@ export class BePersistentController {
         return whatToStore;
     }
     setPropsFromStore({ params, proxy }, val) {
-        const { what } = params;
+        const { what, eventToFire } = params;
         for (const key in what) {
             const whatKey = what[key];
             switch (typeof whatKey) {
@@ -89,6 +95,9 @@ export class BePersistentController {
                 default:
                     throw 'NI'; //Not Implemented
             }
+        }
+        if (eventToFire !== undefined) {
+            proxy.dispatchEvent(new Event(eventToFire.type, eventToFire));
         }
     }
     async onParams({ params, proxy }) {
@@ -157,7 +166,6 @@ define({
         actions: {
             onParams: {
                 ifAllOf: ['params'],
-                async: true,
             },
         }
     },

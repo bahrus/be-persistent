@@ -18,6 +18,12 @@ export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
     where: PersistenceStorage,
     when?: {[key in keyof TEventMap]: boolean | EventCriteria},
     restoreIf: RestoreCriteria,
+    eventToFire?: {
+        type: string,
+        bubbles: boolean,
+        cancelable: boolean,
+        composed: boolean,
+    }
 }
 
 export interface PersistenceStorage{
