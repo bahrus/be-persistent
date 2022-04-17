@@ -25,6 +25,7 @@
     "be-decorated": "0.0.110",
     "be-hive": "0.0.43",
     "xtal-shell": "0.0.27",
+    "trans-render": "0.0.528",
     "idb-keyval": "6.1.0"
   },
   "devDependencies": {
