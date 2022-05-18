@@ -22,20 +22,20 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.110",
-    "be-hive": "0.0.43",
+    "be-decorated": "0.0.114",
+    "be-hive": "0.0.46",
     "xtal-shell": "0.0.27",
-    "trans-render": "0.0.528",
+    "trans-render": "0.0.536",
     "idb-keyval": "6.1.0"
   },
   "devDependencies": {
-    "xtal-test": "0.0.56",
+    "may-it-serve": "0.0.0",
     "@skypack/package-check": "0.2.2"
   },
   "scripts": {
     "test": "node test/test-all.js",
     "package-check": "package-check",
-    "serve": "node node_modules/xtal-test/serve.js"
+    "serve": "node node_modules/may-it-serve/serve.js"
   },
   "repository": {
     "type": "git",

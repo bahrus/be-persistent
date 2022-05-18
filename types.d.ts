@@ -4,7 +4,7 @@ export interface BePersistentVirtualProps{
     params: PersistenceParams;
 }
 export interface BePersistentProps extends BePersistentVirtualProps{
-    proxy: Element & BePersistentVirtualProps
+    proxy: Element & BePersistentVirtualProps;
 }
 
 export interface BePersistentActions{
