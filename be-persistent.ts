@@ -114,7 +114,7 @@ export class BePersistentController implements BePersistentActions {
         
         if(where.autogenId){
             const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-            fullPath = $hell.getFullPath(this.#target!);
+            fullPath = location.href + ':' + $hell.getFullPath(this.#target!);
             if(proxy.id === '') proxy.id = fullPath;
         }
         if(where.idb !== undefined){
