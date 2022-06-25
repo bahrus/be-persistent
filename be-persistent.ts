@@ -144,9 +144,7 @@ export class BePersistentController implements BePersistentActions {
                 if(when[evtType]){
                     proxy.addEventListener(evtType, () => {
                         const whatToStore = this.getWhatToStore(this);
-                        //if(where.sessionStorage){
                         sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
-                        //}
                     });
                 }
             }
@@ -158,6 +156,12 @@ export class BePersistentController implements BePersistentActions {
                     this.setPropsFromStore(this, obj);
                 }
                 
+            }
+            if(persistOnUnload){
+                window.addEventListener('beforeunload', e => {
+                    const whatToStore = this.getWhatToStore(this);
+                    sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
+                });
             }
         }
 
