@@ -13,6 +13,7 @@
   "description": "be-persistent is a behavior/decorator that provides persistence storage to native DOM and custom elements.",
   "main": "be-persistent.js",
   "module": "be-persistent.js",
+  "type": "module",
   "exports": {
     ".": "./be-persistent.js",
     "./be-persistent.js": "./be-persistent.js"

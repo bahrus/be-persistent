@@ -42,6 +42,17 @@ Example 2:  Store to IDB
 }'>
 ```
 
+Example 3:  Persist on unload
+
+```html
+<div contenteditable=true be-persistent='{
+    "what":{
+        "innerText": true
+    },
+    "persistOnUnload": true
+}'>hello</div>
+```
+
 On refreshing the browser, the input's value is retained.
 
 Example tbd:  Criteria [TODO]
