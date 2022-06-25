@@ -22,11 +22,11 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.114",
+    "be-decorated": "0.0.125",
     "be-hive": "0.0.46",
     "xtal-shell": "0.0.27",
-    "trans-render": "0.0.536",
-    "idb-keyval": "6.1.0"
+    "trans-render": "0.0.538",
+    "idb-keyval": "6.2.0"
   },
   "devDependencies": {
     "may-it-serve": "0.0.0",

@@ -7,11 +7,15 @@
     <title>Document</title>
 </head>
 <body>
-    <input disabled be-persistent='{
+    <div contenteditable=true be-persistent='{
         "where":{
             "idb": true
         },
-    }'>
+        "what":{
+            "innerText": true
+        },
+        "persistOnUnload": true
+    }'>hello</div>
     <script type=importmap>
     {
         "imports": {

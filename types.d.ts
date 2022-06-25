@@ -11,12 +11,15 @@ export interface BePersistentActions{
     intro(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
 
     onParams(self: this): void;
+
+    finale(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
 }
 
 export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
     what?: {[key in keyof TObjectToPersist]: boolean | string},
     where: PersistenceStorage,
     when?: {[key in keyof TEventMap]: boolean | EventCriteria},
+    persistOnUnload?: boolean,
     restoreIf: RestoreCriteria,
     eventToFire?: {
         type: string,

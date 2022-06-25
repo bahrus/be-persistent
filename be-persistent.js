@@ -101,7 +101,7 @@ export class BePersistentController {
         }
     }
     async onParams({ params, proxy }) {
-        const { what, when, where, restoreIf } = params;
+        const { what, when, where, restoreIf, persistOnUnload } = params;
         //persist proxy to storage
         let fullPath = proxy.id;
         if (where.autogenId) {
@@ -126,6 +126,12 @@ export class BePersistentController {
                     this.setPropsFromStore(this, val);
                 }
             }
+            if (persistOnUnload) {
+                window.addEventListener('beforeunload', e => {
+                    const whatToStore = this.getWhatToStore(this);
+                    set(fullPath, whatToStore);
+                });
+            }
         }
         else if (where.sessionStorage !== undefined) {
             for (const evtType in when) {
@@ -149,6 +155,9 @@ export class BePersistentController {
         }
         nudge(this.#target);
     }
+    finale(proxy, target, beDecorProps) {
+        console.log('in finale');
+    }
 }
 const tagName = 'be-persistent';
 const ifWantsToBe = 'persistent';
@@ -161,6 +170,7 @@ define({
             ifWantsToBe,
             noParse: true,
             intro: 'intro',
+            finale: 'finale',
             virtualProps: ['params']
         },
         actions: {

@@ -108,7 +108,7 @@ export class BePersistentController implements BePersistentActions {
     }
 
     async onParams({params, proxy}: this){
-        const {what, when, where, restoreIf} = params;
+        const {what, when, where, restoreIf, persistOnUnload} = params;
         //persist proxy to storage
         let fullPath = proxy.id;
         
@@ -132,6 +132,12 @@ export class BePersistentController implements BePersistentActions {
                 if(val !== undefined){
                     this.setPropsFromStore(this, val);
                 }
+            }
+            if(persistOnUnload){
+                window.addEventListener('beforeunload', e => {
+                    const whatToStore = this.getWhatToStore(this);
+                    set(fullPath, whatToStore);
+                });
             }
         }else if(where.sessionStorage !== undefined){
             for(const evtType in when){
@@ -157,6 +163,10 @@ export class BePersistentController implements BePersistentActions {
 
         nudge(this.#target!);
     }
+
+    finale(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
+        console.log('in finale');
+    }
 }
 
 export interface BePersistentController extends BePersistentProps{}
@@ -176,6 +186,7 @@ define<
             ifWantsToBe,
             noParse: true,
             intro: 'intro',
+            finale: 'finale',
             virtualProps: ['params']
         },
         actions:{
