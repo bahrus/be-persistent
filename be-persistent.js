@@ -32,9 +32,8 @@ export class BePersistentController {
     intro(proxy, target, beDecorProps) {
         this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`).trim();
-        let params;
+        let params = target.localName === 'input' ? { ...inputSettings } : { ...defaultSettings };
         if (attr !== '') {
-            params = { ...defaultSettings };
             const firstChar = attr[0];
             if ('[{'.includes(firstChar)) {
                 //params = Object.assign(params, JSON.parse(attr));
@@ -50,10 +49,7 @@ export class BePersistentController {
             }
         }
         else {
-            if (target.localName === 'input') {
-                params = { ...inputSettings };
-            }
-            else {
+            if (target.localName !== 'input') {
                 throw 'NI'; //Not Implemented
             }
         }

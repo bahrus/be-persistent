@@ -37,9 +37,8 @@ export class BePersistentController implements BePersistentActions {
     intro(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
         this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`)!.trim();
-        let params: PersistenceParams;
+        let params: PersistenceParams = target.localName === 'input' ? {...inputSettings} : {...defaultSettings};
         if(attr !== ''){
-            params = {...defaultSettings};
             const firstChar = attr[0];
             if('[{'.includes(firstChar)){
                 //params = Object.assign(params, JSON.parse(attr));
@@ -53,9 +52,7 @@ export class BePersistentController implements BePersistentActions {
                 }
             }
         }else{
-            if(target.localName === 'input'){
-                params = {...inputSettings};
-            }else{
+            if(target.localName !== 'input'){
                 throw 'NI';//Not Implemented
             }
         }
