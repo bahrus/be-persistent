@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form be-persistent='{
+        "where":{
+            "idb": true
+        },
+        "what":{
+            "innerHTML": true
+        },
+        "persistOnUnload": true
+    }'>
+        <label be-typed></label>
+    </form> 
+    <script type='module' >
+        import 'https://esm.run/be-persistent@0.0.18';
+        import 'https://esm.run/be-typed@0.0.3';
+        import 'https://esm.run/be-clonable@0.0.5';
+        import 'https://esm.run/be-delible@0.0.5';
+    </script>
+</body>
+</html>
