@@ -16,7 +16,7 @@ export interface BePersistentActions{
 }
 
 export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
-    what?: {[key in keyof TObjectToPersist]: boolean | string},
+    what?: {[key in keyof TObjectToPersist]: boolean | string  | WhatToPersistCriteria},
     where: PersistenceStorage,
     when?: {[key in keyof TEventMap]: boolean | EventCriteria},
     persistOnUnload?: boolean,
@@ -39,4 +39,8 @@ export interface EventCriteria{}
 
 export interface RestoreCriteria{
     always?: boolean,
+}
+
+export interface WhatToPersistCriteria {
+    beBeatified: boolean
 }
