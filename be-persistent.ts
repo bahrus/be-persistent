@@ -73,6 +73,42 @@ export class BePersistentController implements BePersistentActions {
                         whatToStore[key] = (<any>proxy)[key];
                     }
                     break;
+                case 'object':
+                    if(whatKey.beBeatified){
+                        if(key !== 'innerHTML') throw 'NI'; //Not Implemented
+                        const val = (<any>proxy)[key];
+                        const templ = document.createElement('template');
+                        templ.innerHTML = val;
+                        const elements = Array.from(templ.content.querySelectorAll('*'));
+                        console.log({elements});
+                        for(const el of elements){
+                            const beAttribs: string[] = [];
+                            for (const a of el.attributes) {
+                                //TODO:  use be-hive - some attributes starting with is- might not be be-decorated based
+                                console.log({a});
+                                if(a.name.startsWith('is-')){
+                                    beAttribs.push(a.name);
+                                    //const val = a.value;
+                                    //el.removeAttribute(a.name);
+                                    //el.setAttribute(a.name.replace('is-', 'be-'), val);
+                                }
+                            }
+                            for(const attr of beAttribs){
+                                const val = el.getAttribute(attr);
+                                el.removeAttribute(attr);
+                                el.setAttribute(attr.replace('is-', 'be-'), val!);
+                            } 
+                        }
+                        const clone = templ.content.cloneNode(true);
+                        const div = document.createElement('div');
+                        div.appendChild(clone)
+                        const outerHTML = div.innerHTML;
+                        console.log({outerHTML});
+                        whatToStore[key] = outerHTML;
+                    }else{
+                        throw 'NI';
+                    }
+                    break;
                 default:
                     throw 'NI';//Not Implemented
             }
@@ -89,6 +125,7 @@ export class BePersistentController implements BePersistentActions {
                 case 'string':
                     (<any>proxy)[key] = val[whatKey] ;
                     break;
+                case 'object':
                 case 'boolean':
                     if(whatKey){
                         (<any>proxy)[key] = val[key]; 

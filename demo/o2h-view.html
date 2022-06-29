@@ -12,14 +12,29 @@
             "idb": true
         },
         "what":{
-            "innerHTML": true
+            "innerHTML": {
+                "beBeatified": true
+            }
         },
         "persistOnUnload": true
     }'>
         <label be-typed be-clonable be-delible></label>
     </form> 
+    <script type=importmap>
+        {
+            "imports": {
+                "trans-render/": "../node_modules/trans-render/",
+                "xtal-element/": "../node_modules/xtal-element/",
+                "be-decorated/": "../node_modules/be-decorated/",
+                "be-hive/": "../node_modules/be-hive/",
+                "xtal-shell/": "../node_modules/xtal-shell/",
+                "idb-keyval/": "../node_modules/idb-keyval/",
+                "safari-14-idb-fix": "../node_modules/safari-14-idb-fix/dist/index.js"
+            }
+        }
+        </script>
     <script type='module' >
-        import 'https://esm.run/be-persistent@0.0.18';
+        import '../be-persistent.js';
         import 'https://esm.run/be-typed@0.0.4';
         import 'https://esm.run/be-clonable@0.0.5';
         import 'https://esm.run/be-delible@0.0.6';
