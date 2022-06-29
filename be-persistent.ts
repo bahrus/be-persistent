@@ -80,17 +80,12 @@ export class BePersistentController implements BePersistentActions {
                         const templ = document.createElement('template');
                         templ.innerHTML = val;
                         const elements = Array.from(templ.content.querySelectorAll('*'));
-                        console.log({elements});
                         for(const el of elements){
                             const beAttribs: string[] = [];
                             for (const a of el.attributes) {
                                 //TODO:  use be-hive - some attributes starting with is- might not be be-decorated based
-                                console.log({a});
                                 if(a.name.startsWith('is-')){
                                     beAttribs.push(a.name);
-                                    //const val = a.value;
-                                    //el.removeAttribute(a.name);
-                                    //el.setAttribute(a.name.replace('is-', 'be-'), val);
                                 }
                             }
                             for(const attr of beAttribs){
@@ -103,7 +98,6 @@ export class BePersistentController implements BePersistentActions {
                         const div = document.createElement('div');
                         div.appendChild(clone)
                         const outerHTML = div.innerHTML;
-                        console.log({outerHTML});
                         whatToStore[key] = outerHTML;
                     }else{
                         throw 'NI';
