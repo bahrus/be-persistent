@@ -5,22 +5,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    
 </head>
 <body>
-    <form be-persistent='{
-        "where":{
-            "idb": true
-        },
-        "what":{
-            "innerHTML": {
-                "beBeatified": true
-            }
-        },
-        "persistOnUnload": true
-    }'>
+    <form
+        action='https://o2h-cw.bahrus.workers.dev/'
+        be-persistent='{
+            "where":{
+                "idb": true
+            },
+            "what":{
+                "innerHTML": {
+                    "beBeatified": true
+                }
+            },
+            "persistOnUnload": true
+        }' 
+        be-reformable='{
+            "autoSubmit": true,
+            "path": ["", "proxy-to"]
+        }'
+    >
+        <label>
+            Proxy to: 
+            <input required name='proxy-to' type='url'>
+        </label>
         <label be-typed be-clonable be-delible></label>
     </form> 
-    <!-- <script type=importmap>
+    <script type=importmap>
         {
             "imports": {
                 "trans-render/": "../node_modules/trans-render/",
@@ -32,13 +44,14 @@
                 "safari-14-idb-fix": "../node_modules/safari-14-idb-fix/dist/index.js"
             }
         }
-        </script> -->
-    <script type='module' >
-        import 'https://esm.run/be-persistent@0.0.20';
-        //import '../be-persistent.js';
+        </script>
+    <script type="module" crossorigin="anonymous" >
+        //import 'https://esm.run/be-persistent@0.0.20';
+        import '../be-persistent.js';
         import 'https://esm.run/be-typed@0.0.4';
         import 'https://esm.run/be-clonable@0.0.5';
         import 'https://esm.run/be-delible@0.0.6';
+        import 'https://esm.run/be-reformable@0.0.47';
     </script>
 </body>
 </html>

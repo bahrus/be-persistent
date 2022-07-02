@@ -3,6 +3,7 @@ import { register } from 'be-hive/register.js';
 import { nudge } from 'trans-render/lib/nudge.js';
 import { mergeDeep } from 'trans-render/lib/mergeDeep.js';
 import { camelToLisp } from 'trans-render/lib/camelToLisp.js';
+import { beatify } from 'be-hive/beatify.js';
 const defaultSettings = {
     where: {
         sessionStorage: true,
@@ -55,7 +56,7 @@ export class BePersistentController {
         }
         proxy.params = params;
     }
-    async getWhatToStore({ params, proxy }) {
+    getWhatToStore({ params, proxy }) {
         const { what } = params;
         const whatToStore = {};
         for (const key in what) {
@@ -76,7 +77,6 @@ export class BePersistentController {
                         const val = proxy[key];
                         const templ = document.createElement('template');
                         templ.innerHTML = val;
-                        const { beatify } = await import('be-hive/beatify.js');
                         const beHive = this.proxy.getRootNode().querySelector('be-hive');
                         beatify(templ.content, beHive);
                         const clone = templ.content.cloneNode(true);
@@ -144,8 +144,8 @@ export class BePersistentController {
                 }
             }
             if (persistOnUnload) {
-                window.addEventListener('beforeunload', async (e) => {
-                    const whatToStore = await this.getWhatToStore(this);
+                window.addEventListener('beforeunload', e => {
+                    const whatToStore = this.getWhatToStore(this);
                     set(fullPath, whatToStore);
                 });
             }
@@ -168,8 +168,8 @@ export class BePersistentController {
                 }
             }
             if (persistOnUnload) {
-                window.addEventListener('beforeunload', async (e) => {
-                    const whatToStore = await this.getWhatToStore(this);
+                window.addEventListener('beforeunload', e => {
+                    const whatToStore = this.getWhatToStore(this);
                     sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                 });
             }
