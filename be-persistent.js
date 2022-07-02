@@ -55,7 +55,7 @@ export class BePersistentController {
         }
         proxy.params = params;
     }
-    getWhatToStore({ params, proxy }) {
+    async getWhatToStore({ params, proxy }) {
         const { what } = params;
         const whatToStore = {};
         for (const key in what) {
@@ -76,21 +76,9 @@ export class BePersistentController {
                         const val = proxy[key];
                         const templ = document.createElement('template');
                         templ.innerHTML = val;
-                        const elements = Array.from(templ.content.querySelectorAll('*'));
-                        for (const el of elements) {
-                            const beAttribs = [];
-                            for (const a of el.attributes) {
-                                //TODO:  use be-hive - some attributes starting with is- might not be be-decorated based
-                                if (a.name.startsWith('is-')) {
-                                    beAttribs.push(a.name);
-                                }
-                            }
-                            for (const attr of beAttribs) {
-                                const val = el.getAttribute(attr);
-                                el.removeAttribute(attr);
-                                el.setAttribute(attr.replace('is-', 'be-'), val);
-                            }
-                        }
+                        const { beatify } = await import('be-hive/beatify.js');
+                        const beHive = this.proxy.getRootNode().querySelector('be-hive');
+                        beatify(templ.content, beHive);
                         const clone = templ.content.cloneNode(true);
                         const div = document.createElement('div');
                         div.appendChild(clone);
@@ -143,8 +131,8 @@ export class BePersistentController {
             const { set, get } = await import('idb-keyval/dist/index.js');
             for (const evtType in when) {
                 if (when[evtType]) {
-                    proxy.addEventListener(evtType, () => {
-                        const whatToStore = this.getWhatToStore(this);
+                    proxy.addEventListener(evtType, async () => {
+                        const whatToStore = await this.getWhatToStore(this);
                         set(fullPath, whatToStore);
                     });
                 }
@@ -156,8 +144,8 @@ export class BePersistentController {
                 }
             }
             if (persistOnUnload) {
-                window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                window.addEventListener('beforeunload', async (e) => {
+                    const whatToStore = await this.getWhatToStore(this);
                     set(fullPath, whatToStore);
                 });
             }
@@ -165,8 +153,8 @@ export class BePersistentController {
         else if (where.sessionStorage !== undefined) {
             for (const evtType in when) {
                 if (when[evtType]) {
-                    proxy.addEventListener(evtType, () => {
-                        const whatToStore = this.getWhatToStore(this);
+                    proxy.addEventListener(evtType, async () => {
+                        const whatToStore = await this.getWhatToStore(this);
                         sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                     });
                 }
@@ -180,8 +168,8 @@ export class BePersistentController {
                 }
             }
             if (persistOnUnload) {
-                window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                window.addEventListener('beforeunload', async (e) => {
+                    const whatToStore = await this.getWhatToStore(this);
                     sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                 });
             }

@@ -59,7 +59,7 @@ export class BePersistentController implements BePersistentActions {
         proxy.params = params;
     }
 
-    getWhatToStore({params, proxy}: this){
+    async getWhatToStore({params, proxy}: this){
         const {what} = params;
         const whatToStore: any = {};
         for(const key in what){
@@ -79,21 +79,9 @@ export class BePersistentController implements BePersistentActions {
                         const val = (<any>proxy)[key];
                         const templ = document.createElement('template');
                         templ.innerHTML = val;
-                        const elements = Array.from(templ.content.querySelectorAll('*'));
-                        for(const el of elements){
-                            const beAttribs: string[] = [];
-                            for (const a of el.attributes) {
-                                //TODO:  use be-hive - some attributes starting with is- might not be be-decorated based
-                                if(a.name.startsWith('is-')){
-                                    beAttribs.push(a.name);
-                                }
-                            }
-                            for(const attr of beAttribs){
-                                const val = el.getAttribute(attr);
-                                el.removeAttribute(attr);
-                                el.setAttribute(attr.replace('is-', 'be-'), val!);
-                            } 
-                        }
+                        const {beatify} = await import('be-hive/beatify.js');
+                        const beHive = (this.proxy.getRootNode() as ShadowRoot).querySelector('be-hive') as Element;
+                        beatify(templ.content, beHive);
                         const clone = templ.content.cloneNode(true);
                         const div = document.createElement('div');
                         div.appendChild(clone)
@@ -149,8 +137,8 @@ export class BePersistentController implements BePersistentActions {
             const {set, get} = await import('idb-keyval/dist/index.js');
             for(const evtType in when){
                 if(when[evtType]){
-                    proxy.addEventListener(evtType, () => {
-                        const whatToStore = this.getWhatToStore(this);
+                    proxy.addEventListener(evtType, async () => {
+                        const whatToStore = await this.getWhatToStore(this);
                         set(fullPath, whatToStore);
                     });
                 }
@@ -162,16 +150,16 @@ export class BePersistentController implements BePersistentActions {
                 }
             }
             if(persistOnUnload){
-                window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                window.addEventListener('beforeunload', async e => {
+                    const whatToStore = await this.getWhatToStore(this);
                     set(fullPath, whatToStore);
                 });
             }
         }else if(where.sessionStorage !== undefined){
             for(const evtType in when){
                 if(when[evtType]){
-                    proxy.addEventListener(evtType, () => {
-                        const whatToStore = this.getWhatToStore(this);
+                    proxy.addEventListener(evtType, async () => {
+                        const whatToStore = await this.getWhatToStore(this);
                         sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
                     });
                 }
@@ -186,8 +174,8 @@ export class BePersistentController implements BePersistentActions {
                 
             }
             if(persistOnUnload){
-                window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                window.addEventListener('beforeunload', async e => {
+                    const whatToStore = await this.getWhatToStore(this);
                     sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
                 });
             }
