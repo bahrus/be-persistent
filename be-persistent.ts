@@ -132,10 +132,11 @@ export class BePersistentController implements BePersistentActions {
         const {what, when, where, restoreIf, persistOnUnload} = params;
         //persist proxy to storage
         let fullPath = proxy.id;
-        
+        let locationLessPath = proxy.id;
         if(where.autogenId){
             const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-            fullPath = this.location + ':' + $hell.getFullPath(this.#target!);
+            locationLessPath = $hell.getFullPath(this.#target!);
+            fullPath = this.location + ':' + locationLessPath;
             if(proxy.id === '') proxy.id = fullPath;
         }
         let restored = false;
@@ -196,14 +197,21 @@ export class BePersistentController implements BePersistentActions {
                     proxy.addEventListener(evtType, async  () => {
                         const whatToStore = await this.getWhatToStore(this);
                         const {setItem} = await import('./hash.js');
-                        setItem(fullPath!, whatToStore);
+                        setItem(locationLessPath, whatToStore);
                     })
                 }
             }
             if(restoreIf.always && !restored){
                 const {getItem} = await import('./hash.js');
-                const obj = getItem(fullPath!);
+                const obj = getItem(locationLessPath);
                 if(obj !== null) this.setPropsFromStore(this, obj);
+            }
+            if(persistOnUnload){
+                const {setItem} = await import('./hash.js');
+                window.addEventListener('beforeunload', e => {
+                    const whatToStore = this.getWhatToStore(this);
+                    setItem(locationLessPath, JSON.stringify(whatToStore));
+                });
             }
         }
 
