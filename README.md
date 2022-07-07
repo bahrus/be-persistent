@@ -109,7 +109,7 @@ Example tbd:  Criteria [TODO]
 }'>
 ```
 
-Example 5:  Persist to url hash [TODO]
+Example 5:  Persist to url hash
 
 ```html
 <input be-persistent='{
@@ -120,9 +120,11 @@ Example 5:  Persist to url hash [TODO]
 }'>
 ```
 
-## Precedence [TODO]
+## Precedence
 
-If multiple locations are selected as far as where to persist data, 
+If multiple locations are selected as far as where to persist data, the data is persisted to all of them.  But as far as restoring state from the persisted data, which one takes precedence?
+
+If IDB is enabled, and the data is found that, that is what takes precedence.  If SessionState is enabled (which it is by default, unless specifically turned off) then it takes precedence.  If hash is enabled, it takes the next precedence.
 
 
 Example tbd:  IBD [TODO]
