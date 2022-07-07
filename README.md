@@ -126,22 +126,3 @@ If multiple locations are selected as far as where to persist data, the data is 
 
 If IDB is enabled, and the data is found that, that is what takes precedence.  If SessionState is enabled (which it is by default, unless specifically turned off) then it takes precedence.  If hash is enabled, it takes the next precedence.
 
-
-Example tbd:  IBD [TODO]
-
-```html
-<input be-persistent='{
-    "what": {
-        "value": "myInputValue"
-    },
-    "when": ["change"],
-    "where": {
-        "IBD":{
-            "id": "...",
-            "path": "a.b.c"
-        }
-    }
-}'>
-```
-
-Example 3:  Criteria
