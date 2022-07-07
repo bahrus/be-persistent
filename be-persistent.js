@@ -130,6 +130,7 @@ export class BePersistentController {
             if (proxy.id === '')
                 proxy.id = fullPath;
         }
+        let restored = false;
         if (where.idb) {
             const { set, get } = await import('idb-keyval/dist/index.js');
             for (const evtType in when) {
@@ -143,6 +144,7 @@ export class BePersistentController {
             if (restoreIf.always) {
                 const val = await get(fullPath);
                 if (val !== undefined) {
+                    restored = true;
                     this.setPropsFromStore(this, val);
                 }
             }
@@ -153,7 +155,7 @@ export class BePersistentController {
                 });
             }
         }
-        else if (where.sessionStorage) {
+        if (where.sessionStorage) {
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, async () => {
@@ -163,9 +165,10 @@ export class BePersistentController {
                 }
             }
             //populate proxy with value from sessionStorage
-            if (restoreIf.always) {
+            if (restoreIf.always && !restored) {
                 const rawString = sessionStorage.getItem(fullPath);
                 if (rawString !== null) {
+                    restored = true;
                     const obj = JSON.parse(rawString);
                     this.setPropsFromStore(this, obj);
                 }
@@ -187,7 +190,7 @@ export class BePersistentController {
                     });
                 }
             }
-            if (restoreIf.always) {
+            if (restoreIf.always && !restored) {
                 const { getItem } = await import('./hash.js');
                 const obj = getItem(fullPath);
                 if (obj !== null)
