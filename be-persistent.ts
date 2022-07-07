@@ -124,6 +124,10 @@ export class BePersistentController implements BePersistentActions {
         }
     }
 
+    get location(){
+        return window.location.origin + window.location.pathname;
+    }
+
     async onParams({params, proxy}: this){
         const {what, when, where, restoreIf, persistOnUnload} = params;
         //persist proxy to storage
@@ -131,10 +135,10 @@ export class BePersistentController implements BePersistentActions {
         
         if(where.autogenId){
             const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-            fullPath = location.href + ':' + $hell.getFullPath(this.#target!);
+            fullPath = this.location + ':' + $hell.getFullPath(this.#target!);
             if(proxy.id === '') proxy.id = fullPath;
         }
-        if(where.idb !== undefined){
+        if(where.idb){
             const {set, get} = await import('idb-keyval/dist/index.js');
             for(const evtType in when){
                 if(when[evtType]){
@@ -156,7 +160,7 @@ export class BePersistentController implements BePersistentActions {
                     set(fullPath, whatToStore);
                 });
             }
-        }else if(where.sessionStorage !== undefined){
+        }else if(where.sessionStorage){
             for(const evtType in when){
                 if(when[evtType]){
                     proxy.addEventListener(evtType, async () => {
@@ -179,6 +183,23 @@ export class BePersistentController implements BePersistentActions {
                     const whatToStore = this.getWhatToStore(this);
                     sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
                 });
+            }
+        }
+        if(where.hash){
+            
+            for(const evtType in when){
+                if(when[evtType]){
+                    proxy.addEventListener(evtType, async  () => {
+                        const whatToStore = await this.getWhatToStore(this);
+                        const {setItem} = await import('./hash.js');
+                        setItem(fullPath!, whatToStore);
+                    })
+                }
+            }
+            if(restoreIf.always){
+                const {getItem} = await import('./hash.js');
+                const obj = getItem(fullPath!);
+                if(obj !== null) this.setPropsFromStore(this, obj);
             }
         }
 

@@ -33,6 +33,7 @@ export interface PersistenceStorage{
     sessionStorage?: boolean,
     idb?: boolean,
     autogenId?: boolean,
+    hash?: boolean,
 }
 
 export interface EventCriteria{}

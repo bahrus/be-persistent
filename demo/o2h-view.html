@@ -5,11 +5,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    
+    <style>
+        @import "https://unpkg.com/open-props";
+        @import "https://unpkg.com/open-props/normalize.min.css";
+        @import "https://unpkg.com/open-props/buttons.min.css";
+        label{
+            display:block;
+        }
+    </style>
 </head>
 <body>
     <form
         action="https://o2h-cw.bahrus.workers.dev/"
+        target='[-innerHTML]'
         be-persistent='{
             "where":{
                 "idb": true
@@ -22,7 +30,7 @@
             "persistOnUnload": true
         }' 
         be-reformable='{
-            "autoSubmit": true,
+            "autoSubmit": false,
             "path": ["", "proxy-to"]
         }'
         be-valued
@@ -32,7 +40,9 @@
             <input required name='proxy-to' type='url'>
         </label>
         <label be-typed be-clonable be-delible></label>
+        <button type='submit'>Submit</button>
     </form> 
+    <div -innerHTML></div>
     <!-- <script type=importmap>
         {
             "imports": {
@@ -52,7 +62,7 @@
         import "https://esm.run/be-typed@0.0.4";
         import "https://esm.run/be-clonable@0.0.5";
         import "https://esm.run/be-delible@0.0.6";
-        import "https://esm.run/be-reformable@0.0.47";
+        import "https://esm.run/be-reformable@0.0.48";
         import "https://esm.run/be-valued@0.0.1"
     </script>
 </body>

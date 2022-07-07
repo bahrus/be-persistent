@@ -53,6 +53,48 @@ Example 3:  Persist on unload
 }'>hello</div>
 ```
 
+Example 4:  Persist innerHTML:
+
+```html
+<form
+    action="https://o2h-cw.bahrus.workers.dev/"
+    target='[-innerHTML]'
+    be-persistent='{
+        "where":{
+            "idb": true
+        },
+        "what":{
+            "innerHTML": {
+                "beBeatified": true
+            }
+        },
+        "persistOnUnload": true
+    }' 
+    be-reformable='{
+        "autoSubmit": false,
+        "path": ["", "proxy-to"]
+    }'
+    be-valued
+>
+    <label>
+        Proxy to: 
+        <input required name='proxy-to' type='url'>
+    </label>
+    <label be-typed be-clonable be-delible></label>
+    <button type='submit'>Submit</button>
+</form> 
+<div -innerHTML></div>
+
+<script type="module" crossorigin="anonymous" >
+    import "https://esm.run/be-persistent@0.0.21";
+    import "https://esm.run/be-typed@0.0.4";
+    import "https://esm.run/be-clonable@0.0.5";
+    import "https://esm.run/be-delible@0.0.6";
+    import "https://esm.run/be-reformable@0.0.48";
+    import "https://esm.run/be-valued@0.0.1"
+</script>
+```
+
 On refreshing the browser, the input's value is retained.
 
 Example tbd:  Criteria [TODO]
@@ -66,6 +108,22 @@ Example tbd:  Criteria [TODO]
     }
 }'>
 ```
+
+Example 5:  Persist to url hash [TODO]
+
+```html
+<input be-persistent='{
+    "where":{
+        "idb": true,
+        "hash": true
+    }
+}'>
+```
+
+## Precedence [TODO]
+
+If multiple locations are selected as far as where to persist data, 
+
 
 Example tbd:  IBD [TODO]
 
