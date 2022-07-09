@@ -3,7 +3,7 @@ const close = '-a323-3bbcd5758757';
 
 export function setItem(id: string, obj: any){
     const {hash} = location;
-    const json = btoa(JSON.stringify(obj));
+    const json = btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
     const idEncoded = btoa(id);
     const iPosOfStart = hash.indexOf(open + idEncoded );
     if(iPosOfStart > -1){
@@ -26,6 +26,6 @@ export function getItem(id: string){
     if(iPosOfStart === -1) return null;
     const iPosOfEnd = hash.indexOf(close, iPosOfStart);
     if(iPosOfEnd === -1) return null;
-    const json = JSON.parse(atob(hash.substring(iPosOfStart + open.length + idEncoded.length, iPosOfEnd)));
+    const json = JSON.parse(decodeURIComponent(escape(atob(hash.substring(iPosOfStart + open.length + idEncoded.length, iPosOfEnd))));
     return json;
 }
