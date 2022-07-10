@@ -125,7 +125,7 @@ export class BePersistentController implements BePersistentActions {
     }
 
     get location(){
-        return location.origin + location.pathname + location.search;
+        return location.origin + location.pathname + '?' + location.search;
     }
 
     async onParams({params, proxy}: this){

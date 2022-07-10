@@ -118,7 +118,7 @@ export class BePersistentController {
         }
     }
     get location() {
-        return location.origin + location.pathname + location.search;
+        return location.origin + location.pathname + '?' + location.search;
     }
     async onParams({ params, proxy }) {
         const { what, when, where, restoreIf, persistOnUnload } = params;
