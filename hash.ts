@@ -26,6 +26,6 @@ export function getItem(id: string){
     if(iPosOfStart === -1) return null;
     const iPosOfEnd = hash.indexOf(close, iPosOfStart);
     if(iPosOfEnd === -1) return null;
-    const json = JSON.parse(decodeURIComponent(escape(atob(hash.substring(iPosOfStart + open.length + idEncoded.length, iPosOfEnd))));
+    const json = JSON.parse(decodeURIComponent(escape(atob(hash.substring(iPosOfStart + open.length + idEncoded.length, iPosOfEnd)))));
     return json;
 }
