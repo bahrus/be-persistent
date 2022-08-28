@@ -33,10 +33,8 @@ const inputSettings: PersistenceParams = {
 }
 
 
-export class BePersistentController implements BePersistentActions {
-    #target: Element | undefined;
+export class BePersistentController extends EventTarget implements BePersistentActions {
     intro(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
-        this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`)!.trim();
         let params: PersistenceParams = target.localName === 'input' ? {...inputSettings} : {...defaultSettings};
         if(attr !== ''){
@@ -128,14 +126,14 @@ export class BePersistentController implements BePersistentActions {
         return location.origin + location.pathname + '?' + location.search;
     }
 
-    async onParams({params, proxy}: this){
+    async onParams({params, proxy, self}: this){
         const {what, when, where, restoreIf, persistOnUnload} = params;
         //persist proxy to storage
         let fullPath = proxy.id;
         let locationLessPath = proxy.id;
         if(where.autogenId){
             const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-            locationLessPath = $hell.getFullPath(this.#target!);
+            locationLessPath = $hell.getFullPath(self);
             fullPath = this.location + ':' + locationLessPath;
             if(proxy.id === '') proxy.id = fullPath;
         }
@@ -215,12 +213,10 @@ export class BePersistentController implements BePersistentActions {
             }
         }
 
-        nudge(this.#target!);
+        nudge(self);
+        proxy.resolved = true;
     }
 
-    finale(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps<any, any>): void {
-        console.log('in finale');
-    }
 }
 
 export interface BePersistentController extends BePersistentProps{}
@@ -240,7 +236,6 @@ define<
             ifWantsToBe,
             noParse: true,
             intro: 'intro',
-            finale: 'finale',
             virtualProps: ['params']
         },
         actions:{

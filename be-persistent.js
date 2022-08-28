@@ -28,10 +28,8 @@ const inputSettings = {
         composed: true,
     }
 };
-export class BePersistentController {
-    #target;
+export class BePersistentController extends EventTarget {
     intro(proxy, target, beDecorProps) {
-        this.#target = target;
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`).trim();
         let params = target.localName === 'input' ? { ...inputSettings } : { ...defaultSettings };
         if (attr !== '') {
@@ -120,14 +118,14 @@ export class BePersistentController {
     get location() {
         return location.origin + location.pathname + '?' + location.search;
     }
-    async onParams({ params, proxy }) {
+    async onParams({ params, proxy, self }) {
         const { what, when, where, restoreIf, persistOnUnload } = params;
         //persist proxy to storage
         let fullPath = proxy.id;
         let locationLessPath = proxy.id;
         if (where.autogenId) {
             const { $hell } = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-            locationLessPath = $hell.getFullPath(this.#target);
+            locationLessPath = $hell.getFullPath(self);
             fullPath = this.location + ':' + locationLessPath;
             if (proxy.id === '')
                 proxy.id = fullPath;
@@ -206,10 +204,8 @@ export class BePersistentController {
                 });
             }
         }
-        nudge(this.#target);
-    }
-    finale(proxy, target, beDecorProps) {
-        console.log('in finale');
+        nudge(self);
+        proxy.resolved = true;
     }
 }
 const tagName = 'be-persistent';
@@ -223,7 +219,6 @@ define({
             ifWantsToBe,
             noParse: true,
             intro: 'intro',
-            finale: 'finale',
             virtualProps: ['params']
         },
         actions: {

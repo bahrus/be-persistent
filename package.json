@@ -23,10 +23,10 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.131",
-    "be-hive": "0.0.54",
+    "be-decorated": "0.0.147",
+    "be-hive": "0.0.57",
     "xtal-shell": "0.0.27",
-    "trans-render": "0.0.562",
+    "trans-render": "0.0.578",
     "idb-keyval": "6.2.0"
   },
   "devDependencies": {

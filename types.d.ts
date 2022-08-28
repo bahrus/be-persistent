@@ -1,6 +1,6 @@
-import {BeDecoratedProps} from 'be-decorated/types';
+import {BeDecoratedProps, MinimalProxy} from 'be-decorated/types';
 
-export interface BePersistentVirtualProps{
+export interface BePersistentVirtualProps extends MinimalProxy{
     params: PersistenceParams;
 }
 export interface BePersistentProps extends BePersistentVirtualProps{
@@ -12,7 +12,6 @@ export interface BePersistentActions{
 
     onParams(self: this): void;
 
-    finale(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
 }
 
 export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
