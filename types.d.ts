@@ -1,16 +1,24 @@
 import {BeDecoratedProps, MinimalProxy} from 'be-decorated/types';
 
-export interface BePersistentVirtualProps extends MinimalProxy{
-    params: PersistenceParams;
+
+export interface EndUserProps {
+    params?: PersistenceParams;
 }
-export interface BePersistentProps extends BePersistentVirtualProps{
-    proxy: Element & BePersistentVirtualProps;
+export interface VirtualProps extends EndUserProps,  MinimalProxy{
+    
+}
+export type Proxy = VirtualProps & Element;
+
+export interface ProxyProps extends VirtualProps{
+    proxy: Proxy;
 }
 
-export interface BePersistentActions{
-    intro(proxy: Element & BePersistentVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
+export type PP = ProxyProps;
 
-    onParams(self: this): void;
+export interface Actions{
+    intro(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps): void;
+
+    onParams(pp: PP): void;
 
 }
 

@@ -28,7 +28,7 @@ const inputSettings = {
         composed: true,
     }
 };
-export class BePersistentController extends EventTarget {
+export class BePersistent extends EventTarget {
     intro(proxy, target, beDecorProps) {
         const attr = proxy.getAttribute(`is-${beDecorProps.ifWantsToBe}`).trim();
         let params = target.localName === 'input' ? { ...inputSettings } : { ...defaultSettings };
@@ -75,7 +75,7 @@ export class BePersistentController extends EventTarget {
                         const val = proxy[key];
                         const templ = document.createElement('template');
                         templ.innerHTML = val;
-                        const beHive = this.proxy.getRootNode().querySelector('be-hive');
+                        const beHive = proxy.getRootNode().querySelector('be-hive');
                         beatify(templ.content, beHive);
                         const clone = templ.content.cloneNode(true);
                         const div = document.createElement('div');
@@ -118,7 +118,8 @@ export class BePersistentController extends EventTarget {
     get location() {
         return location.origin + location.pathname + '?' + location.search;
     }
-    async onParams({ params, proxy, self }) {
+    async onParams(pp) {
+        const { params, proxy, self } = pp;
         const { what, when, where, restoreIf, persistOnUnload } = params;
         //persist proxy to storage
         let fullPath = proxy.id;
@@ -136,7 +137,7 @@ export class BePersistentController extends EventTarget {
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, async () => {
-                        const whatToStore = await this.getWhatToStore(this);
+                        const whatToStore = await this.getWhatToStore(pp);
                         set(fullPath, whatToStore);
                     });
                 }
@@ -145,12 +146,12 @@ export class BePersistentController extends EventTarget {
                 const val = await get(fullPath);
                 if (val !== undefined) {
                     restored = true;
-                    this.setPropsFromStore(this, val);
+                    this.setPropsFromStore(pp, val);
                 }
             }
             if (persistOnUnload) {
                 window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                    const whatToStore = this.getWhatToStore(pp);
                     set(fullPath, whatToStore);
                 });
             }
@@ -159,7 +160,7 @@ export class BePersistentController extends EventTarget {
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, async () => {
-                        const whatToStore = await this.getWhatToStore(this);
+                        const whatToStore = await this.getWhatToStore(pp);
                         sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                     });
                 }
@@ -170,12 +171,12 @@ export class BePersistentController extends EventTarget {
                 if (rawString !== null) {
                     restored = true;
                     const obj = JSON.parse(rawString);
-                    this.setPropsFromStore(this, obj);
+                    this.setPropsFromStore(pp, obj);
                 }
             }
             if (persistOnUnload) {
                 window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                    const whatToStore = this.getWhatToStore(pp);
                     sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                 });
             }
@@ -184,7 +185,7 @@ export class BePersistentController extends EventTarget {
             for (const evtType in when) {
                 if (when[evtType]) {
                     proxy.addEventListener(evtType, async () => {
-                        const whatToStore = await this.getWhatToStore(this);
+                        const whatToStore = await this.getWhatToStore(pp);
                         const { setItem } = await import('./hash.js');
                         setItem(locationLessPath, whatToStore);
                     });
@@ -194,12 +195,12 @@ export class BePersistentController extends EventTarget {
                 const { getItem } = await import('./hash.js');
                 const obj = getItem(locationLessPath);
                 if (obj !== null)
-                    this.setPropsFromStore(this, obj);
+                    this.setPropsFromStore(pp, obj);
             }
             if (persistOnUnload) {
                 const { setItem } = await import('./hash.js');
                 window.addEventListener('beforeunload', e => {
-                    const whatToStore = this.getWhatToStore(this);
+                    const whatToStore = this.getWhatToStore(pp);
                     setItem(locationLessPath, JSON.stringify(whatToStore));
                 });
             }
@@ -228,7 +229,7 @@ define({
         }
     },
     complexPropDefaults: {
-        controller: BePersistentController
+        controller: BePersistent
     }
 });
 register(ifWantsToBe, upgrade, tagName);
