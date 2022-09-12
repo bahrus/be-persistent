@@ -1,31 +1,13 @@
+import {Hashit} from 'trans-render/lib/Hashit.js';
 const open = '6ab07062-ae74-4b42-';
 const close = '-a323-3bbcd5758757';
+const hashit = new Hashit(open, close);
 
 export function setItem(id: string, obj: any){
-    const {hash} = location;
-    const json = btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
-    const idEncoded = btoa(id);
-    const iPosOfStart = hash.indexOf(open + idEncoded );
-    if(iPosOfStart > -1){
-        const iPosOfEnd = hash.indexOf(close, iPosOfStart);
-        if(iPosOfEnd > -1){
-            let newHash = hash.substring(0, iPosOfStart + open.length + idEncoded.length);
-            newHash += json;
-            newHash += hash.substring(iPosOfEnd);
-            location.hash = newHash;
-            return;
-        }
-    }
-    location.hash += open + idEncoded + json + close;
+    
+    location.hash  = hashit.stringify(id, obj);
 }
 
 export function getItem(id: string){
-    const {hash} = location;
-    const idEncoded = btoa(id);
-    const iPosOfStart  = hash.indexOf(open + idEncoded);
-    if(iPosOfStart === -1) return null;
-    const iPosOfEnd = hash.indexOf(close, iPosOfStart);
-    if(iPosOfEnd === -1) return null;
-    const json = JSON.parse(decodeURIComponent(escape(atob(hash.substring(iPosOfStart + open.length + idEncoded.length, iPosOfEnd)))));
-    return json;
+    return hashit.parse(id);
 }
