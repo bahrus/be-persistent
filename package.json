@@ -23,20 +23,20 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.153",
-    "be-hive": "0.0.63",
+    "be-decorated": "0.0.238",
+    "be-hive": "0.0.129",
     "xtal-shell": "0.0.27",
-    "trans-render": "0.0.600",
-    "idb-keyval": "6.2.0"
+    "trans-render": "0.0.724",
+    "idb-keyval": "6.2.1"
   },
   "devDependencies": {
-    "may-it-serve": "0.0.2",
-    "@skypack/package-check": "0.2.2"
+    "may-it-serve": "0.0.6"
   },
   "scripts": {
     "test": "node test/test-all.js",
-    "package-check": "package-check",
-    "serve": "node node_modules/may-it-serve/serve.js"
+    "serve": "node node_modules/may-it-serve/serve.js",
+    "safari": "npx playwright wk http://localhost:3030",
+    "update": "ncu -u && npm install"
   },
   "repository": {
     "type": "git",
