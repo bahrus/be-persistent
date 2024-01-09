@@ -1,12 +1,10 @@
-# be-persistent
+# be-persistent [TODO]
 
 [![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-persistent?style=for-the-badge)](https://bundlephobia.com/result?p=be-persistent)
-
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
+[![NPM version](https://badge.fury.io/js/be-persistent.png)](http://badge.fury.io/js/be-persistent)
 
-<a href="https://nodei.co/npm/be-persistent/"><img src="https://nodei.co/npm/be-persistent.png"></a>
-
-be-persistent is a behavior/decorator alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
+be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
 Example 1:  Default settings;
 
@@ -16,7 +14,7 @@ Example 1:  Default settings;
 
 What this does:
 
-Stores input's value in session storage (key is based on location within the DOM).
+Stores input's value in session storage (key is based on location within the DOM), but can also be specified.
 
 The syntax above is short-hand for:
 
