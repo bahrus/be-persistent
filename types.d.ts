@@ -1,8 +1,8 @@
 import { ActionOnEventConfigs } from "trans-render/froop/types";
 import {IBE} from 'be-enhanced/types';
 
-export interface EndUserProps {
-    params?: PersistenceParams;
+export interface EndUserProps extends IBE {
+    params?: PersistenceParams | Array<PersistenceParams>;
 }
 export interface AllProps extends EndUserProps{
     
