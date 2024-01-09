@@ -5,13 +5,10 @@ export interface EndUserProps extends IBE {
     params?: PersistenceParams | Array<PersistenceParams>;
 }
 export interface AllProps extends EndUserProps{
-    
+    isParsed?: boolean,
+    persistenceParams?: Array<PersistenceParams>
 }
-export type Proxy = AllProps & Element;
 
-export interface ProxyProps extends AllProps{
-    proxy: Proxy;
-}
 
 export type AP = AllProps;
 
@@ -24,8 +21,8 @@ export type POA = [PAP | undefined, ActionOnEventConfigs<PAP, Actions>];
 export interface Actions{
     //intro(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps): void;
 
-    //onParams(pp: PP): void;
-
+    hydrate(self: this): ProPAP;
+    parameterize(self: this): ProPAP
 }
 
 export interface PersistenceParams<TObjectToPersist = any, TEventMap = any>{
