@@ -80,7 +80,7 @@ export class BePersistent extends BE {
             let locationLessPath = enhancedElement.id;
             if (where.autogenId) {
                 const { $hell } = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
-                locationLessPath = $hell.getFullPath(self);
+                locationLessPath = $hell.getFullPath(enhancedElement);
                 fullPath = this.location + ':' + locationLessPath;
                 if (enhancedElement.id === '')
                     enhancedElement.id = fullPath;
@@ -221,6 +221,7 @@ const xe = new XE({
     superclass: BePersistent
 });
 const defaultSettings = {
+    nudge: true,
     where: {
         sessionStorage: true,
         autogenId: true,
