@@ -7,7 +7,7 @@ export class BePersistent extends BE<AP, Actions> implements Actions{
     static  override get beConfig(){
         return {
             parse: true,
-            primaryProp: 'to',
+            primaryProp: 'params',
             isParsedProp: 'isParsed',
         } as BEConfig;
     }

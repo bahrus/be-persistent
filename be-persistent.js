@@ -4,7 +4,7 @@ export class BePersistent extends BE {
     static get beConfig() {
         return {
             parse: true,
-            primaryProp: 'to',
+            primaryProp: 'params',
             isParsedProp: 'isParsed',
         };
     }
