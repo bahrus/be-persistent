@@ -1,4 +1,4 @@
-# be-persistent [TODO]
+# be-persistent (💾) [TODO]
 
 [![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-persistent?style=for-the-badge)](https://bundlephobia.com/result?p=be-persistent)
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
