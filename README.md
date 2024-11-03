@@ -4,6 +4,8 @@
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
 [![NPM version](https://badge.fury.io/js/be-persistent.png)](http://badge.fury.io/js/be-persistent)
 
+[TODO} switch to [Uniform Source Protocol notation](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Source-Protocol)
+
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
 Example 1:  Default settings;
