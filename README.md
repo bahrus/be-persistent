@@ -19,7 +19,7 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<input be-persistent='{
+<!--<input be-persistent='{
     "what":{
         "value": true
     },
@@ -33,28 +33,24 @@ The syntax above is short-hand for:
     "restoreIf":{
         "always": true,
     }
-}'>
+}'>-->
+
+<input be-persistent="of value on input to and from sessionStorage://{autogenID}">
+
 ```
+
+
 
 Example 2:  Store to IDB
 
 ```html
-<input be-persistent='{
-    "where":{
-        "idb": true
-    }
-}'>
+<input be-persistent="of value on change to and from indexedDB://myDB/myStore/{autogenID}.">
 ```
 
 Example 3:  Persist on unload
 
 ```html
-<div contenteditable=true be-persistent='{
-    "what":{
-        "innerText": true
-    },
-    "persistOnUnload": true
-}'>hello</div>
+<div contenteditable=true be-persistent="of textContent to and from sessionStorage://{autogenID}">hello</div>
 ```
 
 Example 4:  Persist innerHTML:
