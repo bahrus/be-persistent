@@ -4,7 +4,6 @@
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
 [![NPM version](https://badge.fury.io/js/be-persistent.png)](http://badge.fury.io/js/be-persistent)
 
-[TODO} switch to [Uniform Source Protocol notation](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Source-Protocol)
 
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
@@ -21,25 +20,10 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<!--<input be-persistent='{
-    "what":{
-        "value": true
-    },
-    "when":{
-        "input": true
-    },
-    "where":{
-        "sessionStorage": true,
-        "autogenId": true,
-    },
-    "restoreIf":{
-        "always": true,
-    }
-}'>-->
-
-<input be-persistent="of value on input to and from sessionStorage://{autogenID}">
-
+<input be-persistent="of value on input to and from sessionStorage://{autogenID}.">
 ```
+
+The end of the statement above is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
 
 
