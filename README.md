@@ -32,16 +32,18 @@ The end of the statement above: "sessionStorage://{autogenID}" is based on the [
 ## Emoji alternative
 
 ```html
-<input 💾="of $0:value::input ⇄ sessionStorage://{autogenID}.">
+<input 💾="of $0:value::input ↔️ sessionStorage://{autogenID}.">
 ```
+
+To input the ↔️ symbol n Windows:  🪟 + . + left-right
 
 Example 2:  Store to IDB
 
 ```html
-<input 💾="⇄ indexedDB://myDB/myStore/{autogenID}.">
+<input 💾="↔️ indexedDB://myDB/myStore/{autogenID}.">
 ```
 
-Example 4:  Persist innerHTML:
+Example 3:  Persist innerHTML:
 
 ```html
 <form
