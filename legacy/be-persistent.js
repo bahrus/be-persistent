@@ -1,34 +1,29 @@
-import {BE, propDefaults, propInfo} from 'be-enhanced/BE.js';
-import {BEConfig} from 'be-enhanced/types';
-import {XE} from 'xtal-element/XE.js';
-import {Actions, AllProps, AP, PAP, ProPAP, POA, PersistenceParams} from './types';
-
-export class BePersistent extends BE<AP, Actions> implements Actions{
-    static  override get beConfig(){
+import { BE, propDefaults, propInfo } from 'be-enhanced/BE.js';
+import { XE } from 'xtal-element/XE.js';
+export class BePersistent extends BE {
+    static get beConfig() {
         return {
             parse: true,
             primaryProp: 'params',
             isParsedProp: 'isParsed',
-        } as BEConfig;
+        };
     }
-
-    get location(){
+    get location() {
         return location.origin + location.pathname + '?' + location.search;
     }
-
-    getWhatToStore(self: this, params: PersistenceParams){
-        const {what} = params;
-        const {enhancedElement} = self;
-        const whatToStore: any = {};
-        for(const key in what){
+    getWhatToStore(self, params) {
+        const { what } = params;
+        const { enhancedElement } = self;
+        const whatToStore = {};
+        for (const key in what) {
             const whatKey = what[key];
-            switch(typeof whatKey){
+            switch (typeof whatKey) {
                 case 'string':
-                    whatToStore[whatKey] = (<any>enhancedElement)[key];
+                    whatToStore[whatKey] = enhancedElement[key];
                     break;
                 case 'boolean':
-                    if(whatKey){
-                        whatToStore[key] = (<any>enhancedElement)[key];
+                    if (whatKey) {
+                        whatToStore[key] = enhancedElement[key];
                     }
                     break;
                 case 'object':
@@ -37,7 +32,6 @@ export class BePersistent extends BE<AP, Actions> implements Actions{
                     //     const val = (<any>enhancedElement)[key];
                     //     const templ = document.createElement('template');
                     //     templ.innerHTML = val;
-                        
                     //     const beHive = (enhancedElement.getRootNode() as ShadowRoot).querySelector('be-hive') as Element;
                     //     const clone = templ.content.cloneNode(true);
                     //     const div = document.createElement('div');
@@ -45,183 +39,171 @@ export class BePersistent extends BE<AP, Actions> implements Actions{
                     //     const outerHTML = div.innerHTML;
                     //     whatToStore[key] = outerHTML;
                     // }else{
-                        throw 'NI';
+                    throw 'NI';
                     // }
                     break;
                 default:
-                    throw 'NI';//Not Implemented
+                    throw 'NI'; //Not Implemented
             }
-
         }
         return whatToStore;
     }
-
-    setPropsFromStore(self: this, params: PersistenceParams, val: any){
-        const {enhancedElement} = self;
-        const {what, eventToFire} = params;
-        for(const key in what){
+    setPropsFromStore(self, params, val) {
+        const { enhancedElement } = self;
+        const { what, eventToFire } = params;
+        for (const key in what) {
             const whatKey = what[key];
-            switch(typeof whatKey){
+            switch (typeof whatKey) {
                 case 'string':
-                    (<any>enhancedElement)[key] = val[whatKey] ;
+                    enhancedElement[key] = val[whatKey];
                     break;
                 case 'object':
                 case 'boolean':
-                    if(whatKey){
-                        (<any>enhancedElement)[key] = val[key]; 
+                    if (whatKey) {
+                        enhancedElement[key] = val[key];
                     }
                     break;
                 default:
-                    throw 'NI';//Not Implemented
+                    throw 'NI'; //Not Implemented
             }
-
         }
-        if(eventToFire !== undefined){
+        if (eventToFire !== undefined) {
             enhancedElement.dispatchEvent(new Event(eventToFire.type, eventToFire));
         }
     }
-
-    async hydrate(self: this): ProPAP{
-        const {persistenceParams, enhancedElement} = self;
-        for(const params of persistenceParams!){
-            const {what, when, where, restoreIf, persistOnUnload, nudge: n} = params;
+    async hydrate(self) {
+        const { persistenceParams, enhancedElement } = self;
+        for (const params of persistenceParams) {
+            const { what, when, where, restoreIf, persistOnUnload, nudge: n } = params;
             //persist proxy to storage
             let fullPath = enhancedElement.id;
             let locationLessPath = enhancedElement.id;
-            if(where.autogenId){
-                const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
+            if (where.autogenId) {
+                const { $hell } = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
                 locationLessPath = $hell.getFullPath(enhancedElement);
                 fullPath = this.location + ':' + locationLessPath;
-                if(enhancedElement.id === '') enhancedElement.id = fullPath;
+                if (enhancedElement.id === '')
+                    enhancedElement.id = fullPath;
             }
             let restored = false;
-            if(where.idb){
-                const {set, get} = await import('idb-keyval/dist/index.js');
-                for(const evtType in when){
-                    if(when[evtType]){
+            if (where.idb) {
+                const { set, get } = await import('idb-keyval/dist/index.js');
+                for (const evtType in when) {
+                    if (when[evtType]) {
                         enhancedElement.addEventListener(evtType, async () => {
                             const whatToStore = await this.getWhatToStore(self, params);
                             set(fullPath, whatToStore);
                         });
                     }
                 }
-                if(restoreIf.always){
+                if (restoreIf.always) {
                     const val = await get(fullPath);
-                    if(val !== undefined){
+                    if (val !== undefined) {
                         restored = true;
                         this.setPropsFromStore(self, params, val);
                     }
                 }
-                if(persistOnUnload){
+                if (persistOnUnload) {
                     window.addEventListener('beforeunload', e => {
                         const whatToStore = this.getWhatToStore(self, params);
                         set(fullPath, whatToStore);
                     });
                 }
             }
-            if(where.sessionStorage){
-                for(const evtType in when){
-                    if(when[evtType]){
+            if (where.sessionStorage) {
+                for (const evtType in when) {
+                    if (when[evtType]) {
                         enhancedElement.addEventListener(evtType, async () => {
                             const whatToStore = await this.getWhatToStore(self, params);
-                            sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
+                            sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                         });
                     }
                 }
                 //populate proxy with value from sessionStorage
-                if(restoreIf.always && !restored){
-                    const rawString = sessionStorage.getItem(fullPath!);
-                    if(rawString !== null){
+                if (restoreIf.always && !restored) {
+                    const rawString = sessionStorage.getItem(fullPath);
+                    if (rawString !== null) {
                         restored = true;
-                        const obj = JSON.parse(rawString!);
+                        const obj = JSON.parse(rawString);
                         this.setPropsFromStore(self, params, obj);
                     }
-                    
                 }
-                if(persistOnUnload){
+                if (persistOnUnload) {
                     window.addEventListener('beforeunload', e => {
                         const whatToStore = this.getWhatToStore(self, params);
-                        sessionStorage.setItem(fullPath!, JSON.stringify(whatToStore));
+                        sessionStorage.setItem(fullPath, JSON.stringify(whatToStore));
                     });
                 }
             }
-            if(where.hash){
-                
-                for(const evtType in when){
-                    if(when[evtType]){
-                        enhancedElement.addEventListener(evtType, async  () => {
+            if (where.hash) {
+                for (const evtType in when) {
+                    if (when[evtType]) {
+                        enhancedElement.addEventListener(evtType, async () => {
                             const whatToStore = await this.getWhatToStore(self, params);
-                            const {setItem} = await import('./hash.js');
+                            const { setItem } = await import('../hash.js');
                             setItem(locationLessPath, whatToStore);
-                        })
+                        });
                     }
                 }
-                if(restoreIf.always && !restored){
-                    const {getItem} = await import('./hash.js');
+                if (restoreIf.always && !restored) {
+                    const { getItem } = await import('../hash.js');
                     const obj = getItem(locationLessPath);
-                    if(obj !== null) this.setPropsFromStore(self, params, obj);
+                    if (obj !== null)
+                        this.setPropsFromStore(self, params, obj);
                 }
-                if(persistOnUnload){
-                    const {setItem} = await import('./hash.js');
+                if (persistOnUnload) {
+                    const { setItem } = await import('../hash.js');
                     window.addEventListener('beforeunload', e => {
                         const whatToStore = this.getWhatToStore(self, params);
                         setItem(locationLessPath, JSON.stringify(whatToStore));
                     });
                 }
             }
-            if(n){
-                const {nudge} = await import('trans-render/lib/nudge.js');
+            if (n) {
+                const { nudge } = await import('trans-render/lib/nudge.js');
                 nudge(enhancedElement);
             }
-
         }
         return {
             resolved: true,
-        }
+        };
     }
-
-    mergeParams(self: this, x: PersistenceParams): PersistenceParams{
-        const {enhancedElement} = this;
-        if(enhancedElement instanceof HTMLInputElement || enhancedElement instanceof HTMLTextAreaElement){
+    mergeParams(self, x) {
+        const { enhancedElement } = this;
+        if (enhancedElement instanceof HTMLInputElement || enhancedElement instanceof HTMLTextAreaElement) {
             return {
                 ...defaultSettings,
                 ...inputSettings,
                 ...x,
-            }
+            };
         }
         return {
             ...defaultSettings,
             ...x,
-        }
+        };
     }
-
-    async parameterize(self: this): ProPAP {
-        const {params} = self;
-        switch(typeof params){
+    async parameterize(self) {
+        const { params } = self;
+        switch (typeof params) {
             case 'object':
-                if(Array.isArray(params)){
+                if (Array.isArray(params)) {
                     return {
                         persistenceParams: params.map(x => this.mergeParams(self, x))
-                    }
+                    };
                 }
                 return {
                     persistenceParams: [this.mergeParams(self, params)]
-                }
-            case 'undefined':{
+                };
+            case 'undefined': {
                 return {
-                    persistenceParams:  [this.mergeParams(self, {} as PersistenceParams)]
+                    persistenceParams: [this.mergeParams(self, {})]
                 };
             }
         }
-
     }
 }
-
-export interface BePersistent extends AllProps{}
-
 export const tagName = 'be-persistent';
-
-const xe = new XE<AP, Actions>({
+const xe = new XE({
     config: {
         tagName,
         isEnh: true,
@@ -238,30 +220,28 @@ const xe = new XE<AP, Actions>({
     },
     superclass: BePersistent
 });
-
-const defaultSettings: PersistenceParams = {
+const defaultSettings = {
     nudge: true,
-    where:{
+    where: {
         sessionStorage: true,
         autogenId: true,
     },
-    restoreIf:{
+    restoreIf: {
         always: true,
     }
-  }
-  
-  const inputSettings: PersistenceParams = {
-      ...defaultSettings,
-      what:{
-          value: true,
-      },
-      when:{
-          input: true,
-      },
-      eventToFire:{
-          type: 'input',
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-      }
-  }
+};
+const inputSettings = {
+    ...defaultSettings,
+    what: {
+        value: true,
+    },
+    when: {
+        input: true,
+    },
+    eventToFire: {
+        type: 'input',
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+    }
+};

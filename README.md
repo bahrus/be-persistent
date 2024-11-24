@@ -49,22 +49,7 @@ Example 3:  Persist innerHTML:
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
     target='[-innerHTML]'
-    be-persistent='{
-        "where":{
-            "idb": true
-        },
-        "what":{
-            "innerHTML": {
-                "beBeatified": true
-            }
-        },
-        "persistOnUnload": true
-    }' 
-    be-reformable='{
-        "autoSubmit": false,
-        "path": ["", "proxy-to"]
-    }'
-    be-valued
+    💾="of $0:innerHTML ↔️ indexedDB://myDB/myStore/{autogenID}"
 >
     <label>
         Proxy to: 
