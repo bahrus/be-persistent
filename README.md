@@ -20,17 +20,20 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<input be-persistent="of value on input to and from sessionStorage://{autogenID}.">
+<input be-persistent="of $0:value::input to and from sessionStorage://{autogenID}.">
 ```
 
-The end of the statement above is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
+The fragment "of $0:value::input" is assumed if not provided.
 
+"$0:value::input" uses [DSS](https://github.com/bahrus/trans-render/wiki/VIII.--Directed-Scoped-Specifiers-(DSS)).
+
+The end of the statement above: "sessionStorage://{autogenID}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
 
 Example 2:  Store to IDB
 
 ```html
-<input be-persistent="of value on change to and from indexedDB://myDB/myStore/{autogenID}.">
+<input be-persistent="of $0:value::change to and from indexedDB://myDB/myStore/{autogenID}.">
 ```
 
 Example 3:  Persist on unload
