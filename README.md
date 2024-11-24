@@ -29,17 +29,16 @@ The fragment "of $0:value::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autogenID}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
+## Emoji alternative
+
+```html
+<input 💾="of $0:value::input ⇄ sessionStorage://{autogenID}.">
+```
 
 Example 2:  Store to IDB
 
 ```html
-<input be-persistent="of $0:value::change to and from indexedDB://myDB/myStore/{autogenID}.">
-```
-
-Example 3:  Persist on unload
-
-```html
-<div contenteditable=true be-persistent="of textContent to and from sessionStorage://{autogenID}">hello</div>
+<input 💾="⇄ indexedDB://myDB/myStore/{autogenID}.">
 ```
 
 Example 4:  Persist innerHTML:
