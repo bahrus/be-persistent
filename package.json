@@ -23,19 +23,19 @@
   ],
   "types": "types.d.ts",
   "dependencies": {
-    "be-decorated": "0.0.238",
-    "be-hive": "0.0.129",
-    "xtal-shell": "0.0.27",
-    "trans-render": "0.0.724",
-    "idb-keyval": "6.2.1"
+    "be-enhanced": "0.0.154",
+    "be-hive": "0.0.233",
+    "trans-render": "0.0.860",
+    "xtal-shell": "0.0.27"
   },
   "devDependencies": {
-    "may-it-serve": "0.0.6"
+    "@playwright/test": "1.49.0",
+    "ssi-server": "0.0.1"
   },
   "scripts": {
-    "test": "node test/test-all.js",
-    "serve": "node node_modules/may-it-serve/serve.js",
-    "safari": "npx playwright wk http://localhost:3030",
+    "serve": "python3 ./node_modules/ssi-server/ssi_server.py",
+    "test": "playwright test",
+    "safari": "npx playwright wk http://localhost:8000",
     "update": "ncu -u && npm install"
   },
   "repository": {
