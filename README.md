@@ -1,6 +1,6 @@
 # be-persistent (💾) [TODO]
 
-<img align="center" src="9bhbww.jpg" alt="Where are my cookies?" width="400" style="max-width: 100%;">
+<img align="middle" src="9bhbww.jpg" alt="Where are my cookies?" width="400" style="max-width: 100%;">
 
 <!--[![Cookies](9bhbww.jpg)](9bhbww.jpg)-->
 
