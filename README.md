@@ -20,7 +20,7 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<input be-persistent="of $0:value::input to and from sessionStorage://{autogenID}.">
+<input be-persistent="of $0:value::input ↔️ sessionStorage://{autogenID}.">
 ```
 
 The fragment "of $0:value::input" is assumed if not provided.
@@ -29,13 +29,15 @@ The fragment "of $0:value::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autogenID}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
+To input the ↔️ symbol n Windows:  🪟 + . + left-right
+
 ## Emoji alternative
 
 ```html
 <input 💾="of $0:value::input ↔️ sessionStorage://{autogenID}.">
 ```
 
-To input the ↔️ symbol n Windows:  🪟 + . + left-right
+
 
 Example 2:  Store to IDB
 
