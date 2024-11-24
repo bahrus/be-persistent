@@ -19,3 +19,5 @@ class BePersistent extends BE {
 
 await BePersistent.bootUp();
 export { BePersistent }
+
+export default BePersistent;

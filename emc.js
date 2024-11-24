@@ -14,7 +14,7 @@ export const emc = {
 
     },
     importEnh: async () => {
-        const { BePersistent } = 
+        const BePersistent  = 
         /** @type {{new(): IEnhancement<Element>}} */ 
         /** @type {any} */
         (await import('./be-persistent.js'));
