@@ -29,7 +29,7 @@ The fragment "of $0:value::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autogenID}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
-To input the ↔️ symbol n Windows:  🪟 + . + left-right
+To input the ↔️ symbol in Windows:  🪟 + . + left-right
 
 ## Emoji alternative
 
