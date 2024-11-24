@@ -1,6 +1,6 @@
 # be-persistent (💾) [TODO]
 
-[![Cookies](https://imgflip.com/i/9bhbww)](https://imgflip.com/i/9bhbww)
+[![Cookies](9bhbww.jpg)](9bhbww.jpg)
 
 [![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-persistent?style=for-the-badge)](https://bundlephobia.com/result?p=be-persistent)
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
