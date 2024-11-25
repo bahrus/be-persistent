@@ -1,8 +1,8 @@
 # be-persistent (💾) [TODO]
 
-<div style="width:100%;">
-<img align="center" src="https://github.com/bahrus/be-persistent/raw/baseline/9bhbww.jpg" alt="Where are my cookies?" width="400" style="max-width: 100%;">
-</div>
+<p align="center">
+<img src="https://github.com/bahrus/be-persistent/raw/baseline/9bhbww.jpg" alt="Where are my cookies?" width="400" style="max-width: 100%;">
+</p>
 
 
 
