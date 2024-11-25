@@ -2,7 +2,7 @@
 
 <img align="middle" src="9bhbww.jpg" alt="Where are my cookies?" width="400" style="max-width: 100%;">
 
-<!--[![Cookies](9bhbww.jpg)](9bhbww.jpg)-->
+
 
 [![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-persistent?style=for-the-badge)](https://bundlephobia.com/result?p=be-persistent)
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
@@ -11,7 +11,7 @@
 
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
-Example 1:  Default settings;
+Example 1:  Default settings [TODO]
 
 ```html
 <input be-persistent>
@@ -24,7 +24,7 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<input be-persistent="of $0:value::input ↔️ sessionStorage://{autogenID}.">
+<input be-persistent="of $0:value::input ↔ sessionStorage://{autogenID}.">
 ```
 
 The fragment "of $0:value::input" is assumed if not provided.
@@ -35,7 +35,9 @@ The end of the statement above: "sessionStorage://{autogenID}" is based on the [
 
 To input the ↔️ symbol in Windows:  🪟 + . + left-right
 
-## Emoji alternative
+You can, alternatively, use "vv", and abbreviation of vis-à-vis, according to copilot.
+
+## Emoji alternative [TODO]
 
 ```html
 <input 💾="of $0:value::input ↔️ sessionStorage://{autogenID}.">
@@ -43,10 +45,16 @@ To input the ↔️ symbol in Windows:  🪟 + . + left-right
 
 
 
-Example 2:  Store to IDB
+Example 2:  Store to IDB [TODO]
 
 ```html
 <input 💾="↔️ indexedDB://myDB/myStore/{autogenID}.">
+```
+
+Example 3:  Store to a cookie [TODO]
+
+```html
+<input 💾="↔️ cookie://{autogenID}.">
 ```
 
 Example 3:  Persist innerHTML:
