@@ -13,7 +13,7 @@
 
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
-Example 1:  Default settings [TODO]
+## Example 1:  Default settings [TODO]
 
 ```html
 <input be-persistent>
@@ -47,13 +47,13 @@ You can, alternatively, use "vv", and abbreviation of vis-à-vis, according to c
 
 
 
-Example 2:  Store to IDB [TODO]
+## Example 2:  Store to IDB [TODO]
 
 ```html
 <input 💾="↔️ indexedDB://myDB/myStore/{autogenID}.">
 ```
 
-Example 3:  Store to a cookie [TODO]
+## Example 3:  Store to a cookie [TODO]
 
 ```html
 <input 💾="↔️ cookie://{autogenID}.">
