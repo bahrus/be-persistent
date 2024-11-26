@@ -52,6 +52,8 @@ class BePersistent extends BE {
      * @returns 
      */
     async hydrate(self){
+        const {rules} = self;
+        console.log({rules});
         return /** @type {PAP} */ ({
             resolved: true
         });
@@ -60,5 +62,3 @@ class BePersistent extends BE {
 
 await BePersistent.bootUp();
 export { BePersistent }
-
-export default BePersistent;
