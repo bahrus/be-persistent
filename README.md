@@ -37,7 +37,7 @@ The end of the statement above: "sessionStorage://{autogenID}" is based on the [
 
 To input the ↔️ symbol in Windows:  🪟 + . + left-right
 
-You can, alternatively, use "vv", and abbreviation of vis-à-vis, according to copilot.
+You can, alternatively, use "<=>".
 
 ## Emoji alternative [TODO]
 
@@ -59,7 +59,15 @@ You can, alternatively, use "vv", and abbreviation of vis-à-vis, according to c
 <input 💾="↔️ cookie://{autogenID}.">
 ```
 
+## Example 4:  Store to location.hash [TODO]
+
+```html
+<input 💾="↔️ locationHash://{autogenID}.">
+```
+
 Example 3:  Persist innerHTML:
+
+This option *doesn't* support the locationHash option
 
 ```html
 <form
