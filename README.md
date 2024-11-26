@@ -26,12 +26,12 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<input be-persistent="of $0:value::input ↔ sessionStorage://{autogenID}.">
+<input be-persistent="of value::input ↔ sessionStorage://{autogenID}.">
 ```
 
-The fragment "of $0:value::input" is assumed if not provided.
+The fragment "of value::input" is assumed if not provided.
 
-"$0:value::input" uses [DSS](https://github.com/bahrus/trans-render/wiki/VIII.--Directed-Scoped-Specifiers-(DSS)).
+Also, the event "::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autogenID}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
@@ -42,7 +42,7 @@ You can, alternatively, use "<=>".
 ## Emoji alternative [TODO]
 
 ```html
-<input 💾="of $0:value::input ↔️ sessionStorage://{autogenID}.">
+<input 💾="of value::input ↔️ sessionStorage://{autogenID}.">
 ```
 
 
@@ -73,7 +73,7 @@ This option *doesn't* support the locationHash option
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
     target='[-innerHTML]'
-    💾="of $0:innerHTML ↔️ indexedDB://myDB/myStore/{autogenID}"
+    💾="of innerHTML ↔️ indexedDB://myDB/myStore/{autogenID}"
 >
     <label>
         Proxy to: 
