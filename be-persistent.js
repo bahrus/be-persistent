@@ -47,16 +47,38 @@ class BePersistent extends BE {
     }
 
     /**
+     * @type {AbortController}
+     */
+    #ac;
+
+    /**
      * 
      * @param {BAP} self 
      * @returns 
      */
     async hydrate(self){
         const {rules} = self;
+        if(this.#ac !== undefined){
+            this.#ac.abort();
+        }
+        this.#ac = new AbortController();
         console.log({rules});
+        const {Binder} = await import('./Binder.js');
+        for(const rule of rules){
+            new Binder(self, rule, this.#ac);
+        }
         return /** @type {PAP} */ ({
             resolved: true
         });
+    }
+
+    /**
+     * 
+     * @param {Element} el 
+     */
+    async detach(el){
+        this.#ac.abort();
+        await super.detach(el);
     }
 }
 
