@@ -41,7 +41,7 @@ class BePersistent extends BE {
             rules: [{
                 localEvent: 'input',
                 localProp: 'value',
-                usl: 'sessionStorage://{autogenID}'
+                usl: 'sessionStorage://{autoGenId}'
             }]
         });
     }

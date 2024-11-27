@@ -26,14 +26,14 @@ Stores input's value in session storage (key is based on location within the DOM
 The syntax above is short-hand for:
 
 ```html
-<input be-persistent="of value::input ↔ sessionStorage://{autogenID}.">
+<input be-persistent="of value::input ↔ sessionStorage://{autoGenId}.">
 ```
 
 The fragment "of value::input" is assumed if not provided.
 
 Also, the event "::input" is assumed if not provided.
 
-The end of the statement above: "sessionStorage://{autogenID}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
+The end of the statement above: "sessionStorage://{autoGenId}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
 To input the ↔️ symbol in Windows:  🪟 + . + left-right
 
@@ -42,7 +42,7 @@ You can, alternatively, use "<=>".
 ## Emoji alternative [TODO]
 
 ```html
-<input 💾="of value::input ↔️ sessionStorage://{autogenID}.">
+<input 💾="of value::input ↔️ sessionStorage://{autoGenId}.">
 ```
 
 
@@ -50,19 +50,19 @@ You can, alternatively, use "<=>".
 ## Example 2:  Store to IDB [TODO]
 
 ```html
-<input 💾="↔️ indexedDB://myDB/myStore/{autogenID}.">
+<input 💾="↔️ indexedDB://myDB/myStore/{autoGenId}.">
 ```
 
 ## Example 3:  Store to a cookie [TODO]
 
 ```html
-<input 💾="↔️ cookie://{autogenID}.">
+<input 💾="↔️ cookie://{autoGenId}.">
 ```
 
 ## Example 4:  Store to location.hash [TODO]
 
 ```html
-<input 💾="↔️ locationHash://{autogenID}.">
+<input 💾="↔️ locationHash://{autoGenId}.">
 ```
 
 Example 3:  Persist innerHTML: [TODO]
@@ -73,7 +73,7 @@ If using the locationHash option, must use trusted types [TODO]
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
     target='[-innerHTML]'
-    💾="of innerHTML ↔️ indexedDB://myDB/myStore/{autogenID}"
+    💾="of innerHTML ↔️ indexedDB://myDB/myStore/{autoGenId}"
 >
     <label>
         Proxy to: 

@@ -88,7 +88,7 @@ export class BePersistent extends BE<AP, Actions> implements Actions{
             //persist proxy to storage
             let fullPath = enhancedElement.id;
             let locationLessPath = enhancedElement.id;
-            if(where.autogenId){
+            if(where.autoGenId){
                 const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
                 locationLessPath = $hell.getFullPath(enhancedElement);
                 fullPath = this.location + ':' + locationLessPath;
@@ -243,7 +243,7 @@ const defaultSettings: PersistenceParams = {
     nudge: true,
     where:{
         sessionStorage: true,
-        autogenId: true,
+        autoGenId: true,
     },
     restoreIf:{
         always: true,

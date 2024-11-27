@@ -2,7 +2,8 @@
 /** @import {
  * Actions, PAP, AllProps, AP, BAP, PersistenceRule
  * } from './ts-refs/be-persistent/types.d.ts' 
- * */;
+ * */
+ /** @import {USL} from './ts-refs/trans-render/XV/types' */
 
  /**
   * @implements {EventListenerObject}
@@ -32,9 +33,7 @@ export class Binder{
         this.handleEvent();
     }
 
-    get location(){
-        return location.origin + location.pathname + '?' + location.search;
-    }
+
 
     /**
      * 
@@ -47,15 +46,16 @@ export class Binder{
         const {enhancedElement} = self;
         const {localProp, usl} = rule;
         const {get} = await import('trans-render/XV/get.js');
+        const {set} = await import('trans-render/XV/set.js');
         /**
-         * @type  {import('./ts-refs/trans-render/XV/types').USL}
+         * @type  {USL}
          */
         let staticUSL = usl || 'sessionStorage://{autoGenId}';
         if(staticUSL.includes('{autoGenId}')){
             const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
             const locationLessPath = $hell.getFullPath(enhancedElement).replaceAll('/', '_slash_');
-            const fullPath = this.location + '__' + locationLessPath;
-            staticUSL.replaceAll('{autoGenId}', fullPath);
+            const fullPath = cleanse(locationKey) + '__' + cleanse(locationLessPath);
+            staticUSL = /** @type {USL} */ (staticUSL.replaceAll('{autoGenId}', fullPath));
         }
         if(e === undefined){
             //initialization
@@ -66,11 +66,23 @@ export class Binder{
                 case 'eq':
                     return;
                 case 'lhs':
-                    
+                    await set(staticUSL, currentLocalVal);
+                    return;
+                case 'rhs':
+                    enhancedElement[localProp || 'value'] = currentStoreVal;
+                    return; 
+
             }
         }
+        throw 'NI';
     }
 }
+
+function cleanse(s){
+    return s.replaceAll(':', '_sc_').replaceAll('/', '_slash_');
+}
+
+const locationKey  = location.origin + location.pathname + '_q_' + location.search
 
 //move to trans-render:
 const typeRankings = [
