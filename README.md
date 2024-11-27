@@ -65,9 +65,9 @@ You can, alternatively, use "<=>".
 <input 💾="↔️ locationHash://{autogenID}.">
 ```
 
-Example 3:  Persist innerHTML:
+Example 3:  Persist innerHTML: [TODO]
 
-This option *doesn't* support the locationHash option
+If using the locationHash option, must use trusted types [TODO]
 
 ```html
 <form

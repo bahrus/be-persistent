@@ -58,9 +58,16 @@ export class Binder{
             staticUSL.replaceAll('{autoGenId}', fullPath);
         }
         if(e === undefined){
+            //initialization
             const currentLocalVal = enhancedElement[localProp || 'value'];
             const currentStoreVal = await get(staticUSL);
-            //initialization
+            const bt = breakTie(currentLocalVal, currentStoreVal);
+            switch(bt){
+                case 'eq':
+                    return;
+                case 'lhs':
+                    
+            }
         }
     }
 }
