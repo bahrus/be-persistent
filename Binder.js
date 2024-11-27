@@ -52,7 +52,10 @@ export class Binder{
          */
         let staticUSL = usl || 'sessionStorage://{autoGenId}';
         if(staticUSL.includes('{autoGenId}')){
-            
+            const {$hell} = await import('xtal-shell/$hell.js'); //TODO: need a small version of this
+            const locationLessPath = $hell.getFullPath(enhancedElement).replaceAll('/', '_slash_');
+            const fullPath = this.location + '__' + locationLessPath;
+            staticUSL.replaceAll('{autoGenId}', fullPath);
         }
         if(e === undefined){
             const currentLocalVal = enhancedElement[localProp || 'value'];
