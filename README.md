@@ -28,7 +28,7 @@ The syntax above is short-hand for:
 ## Explicit Default Settings
 
 ```html
-<input be-persistent="of value::input ↔ sessionStorage://{autoGenId}.">
+<input be-persistent="of value::input via sessionStorage://{autoGenId}.">
 ```
 
 The fragment "of value::input" is assumed if not provided.
@@ -37,14 +37,12 @@ Also, the event "::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autoGenId}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
-To input the vv symbol in Windows:  🪟 + . + left-right
 
-You can, alternatively, use "<=>".
 
 ## Emoji alternative [TODO]
 
 ```html
-<input 💾="of value::input vv sessionStorage://{autoGenId}.">
+<input 💾="of value::input via sessionStorage://{autoGenId}.">
 ```
 
 
@@ -52,19 +50,19 @@ You can, alternatively, use "<=>".
 ## Example 2:  Store to IDB [TODO]
 
 ```html
-<input 💾="vv indexedDB://myDB/myStore/{autoGenId}.">
+<input 💾="via indexedDB://myDB/myStore/{autoGenId}.">
 ```
 
 ## Example 3:  Store to a cookie [TODO]
 
 ```html
-<input 💾="vv cookie://{autoGenId}.">
+<input 💾="via cookie://{autoGenId}.">
 ```
 
 ## Example 4:  Store to location.hash [TODO]
 
 ```html
-<input 💾="vv locationHash://{autoGenId}.">
+<input 💾="via locationHash://{autoGenId}.">
 ```
 
 Example 3:  Persist innerHTML: [TODO]
@@ -75,7 +73,7 @@ If using the locationHash option, must use trusted types [TODO]
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
     target='[-innerHTML]'
-    💾="of innerHTML vv indexedDB://myDB/myStore/{autoGenId}"
+    💾="of innerHTML via indexedDB://myDB/myStore/{autoGenId}"
 >
     <label>
         Proxy to: 
