@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Default Settings</title>
+    <!-- #include virtual="/imports.html" -->
+</head>
+<body>
+    <input be-persistent value=test>
+    <div id=target></div>
+    <script type=module>
+        import '/emc.js';
+    </script>
+    <script>
+        setTimeout(() => {
+            if(sessionStorage.getItem('http_sc__slash__slash_localhost_sc_8000_slash_tests_slash_DefaultSettings.html_q____slash_input') === 'test'){
+                target.setAttribute('mark', 'good');
+            }
+        }, 500);
+    </script>
+</body>
+</html>
