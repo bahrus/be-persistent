@@ -77,58 +77,45 @@ There are certain, limited circumstances, where we want to throw security to the
 ```
 
 
-```html
-<form
-    action="https://o2h-cw.bahrus.workers.dev/"
-    💾="of unsanitizedInnerHTML via locationHash://{autoGenId}"
-    onsecuritypolicyviolation="event.anythingGoes = true"
->
-    <label>
-        Proxy to: 
-        <input required name='proxy-to' type='url'>
-    </label>
-    <label be-typed be-clonable be-delible></label>
-    <button type='submit'>Submit</button>
-</form> 
-<div -innerHTML></div>
-```
-
-On refreshing the browser, the input's value is retained.
+On refreshing the browser, the inner content's edits are retained.
 
 ## Example 6:  Persist safe inner HTML
 
 We make use of trusted types [TODO]
 
 
+## Viewing Your Element Locally
 
+Any web server that can serve static files will do, but...
 
+1.  Install git.
+2.  Fork/clone this repo.
+3.  Install node.js
+4.  Install Python 3 or later
+5.  Open command window to folder where you cloned this repo.
+6.  > npm install
+7.  > npm run serve
+8.  Open http://localhost:8000/demo/ in a modern browser.
 
-Example tbd:  Criteria [TODO]
+## Running Tests
 
-```html
-<input be-persistent='{
-    "restoreIf":{
-        "value":{
-            "eq": "defaultValue"
-        }
-    }
-}'>
+```
+> npm run test
 ```
 
-Example 5:  Persist to url hash
+## Using from ESM Module:
 
-```html
-<input be-persistent='{
-    "where":{
-        "idb": true,
-        "hash": true
-    }
-}'>
+```JavaScript
+import 'be-persistent/be-persistent.js';
 ```
 
-## Precedence
+## Using from CDN:
 
-If multiple locations are selected as far as where to persist data, the data is persisted to all of them.  But as far as restoring state from the persisted data, which one takes precedence?
+```html
+<script type=module crossorigin=anonymous>
+    import 'https://esm.run/be-persistent';
+</script>
+```
 
-If IDB is enabled, and the data is found that, that is what takes precedence.  If SessionState is enabled (which it is by default, unless specifically turned off) then it takes precedence.  If hash is enabled, it takes the next precedence.
+
 
