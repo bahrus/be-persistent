@@ -45,6 +45,11 @@ export class Binder{
         if(self === undefined) return;
         const {enhancedElement} = self;
         const {localProp, usl} = rule;
+        switch(localProp){
+            case 'innerHTML':
+            case 'outerHTML':
+                throw 'NI';
+        }
         const {get} = await import('trans-render/XV/get.js');
         const {set} = await import('trans-render/XV/set.js');
         /**

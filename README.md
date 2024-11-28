@@ -65,15 +65,17 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 <input 💾="via locationHash://{autoGenId}.">
 ```
 
-## Example 5:  Persist innerHTML: [TODO]
+## Example 5:  Persist unsafe innerHTML: [TODO]
 
-If using the locationHash option, must use trusted types [TODO]
+There are certain, limited circumstances, where we want to throw security to the dogs, and provide a convenient way of creating "virtual web pages embedded in the url".  Here's how we do this:
+
+
 
 ```html
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
-    target='[-innerHTML]'
-    💾="of innerHTML via indexedDB://myDB/myStore/{autoGenId}"
+    💾="of unsanitizedInnerHTML via locationHash://{autoGenId}"
+
 >
     <label>
         Proxy to: 
@@ -83,18 +85,17 @@ If using the locationHash option, must use trusted types [TODO]
     <button type='submit'>Submit</button>
 </form> 
 <div -innerHTML></div>
-
-<script type="module" crossorigin="anonymous" >
-    import "https://esm.run/be-persistent@0.0.21";
-    import "https://esm.run/be-typed@0.0.4";
-    import "https://esm.run/be-clonable@0.0.5";
-    import "https://esm.run/be-delible@0.0.6";
-    import "https://esm.run/be-reformable@0.0.48";
-    import "https://esm.run/be-valued@0.0.1"
-</script>
 ```
 
 On refreshing the browser, the input's value is retained.
+
+## Example 6:  Persist safe inner HTML
+
+We make use of trusted types [TODO]
+
+
+
+
 
 Example tbd:  Criteria [TODO]
 
