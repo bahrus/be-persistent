@@ -37,14 +37,14 @@ Also, the event "::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autoGenId}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
-To input the ↔️ symbol in Windows:  🪟 + . + left-right
+To input the vv symbol in Windows:  🪟 + . + left-right
 
 You can, alternatively, use "<=>".
 
 ## Emoji alternative [TODO]
 
 ```html
-<input 💾="of value::input ↔️ sessionStorage://{autoGenId}.">
+<input 💾="of value::input vv sessionStorage://{autoGenId}.">
 ```
 
 
@@ -52,19 +52,19 @@ You can, alternatively, use "<=>".
 ## Example 2:  Store to IDB [TODO]
 
 ```html
-<input 💾="↔️ indexedDB://myDB/myStore/{autoGenId}.">
+<input 💾="vv indexedDB://myDB/myStore/{autoGenId}.">
 ```
 
 ## Example 3:  Store to a cookie [TODO]
 
 ```html
-<input 💾="↔️ cookie://{autoGenId}.">
+<input 💾="vv cookie://{autoGenId}.">
 ```
 
 ## Example 4:  Store to location.hash [TODO]
 
 ```html
-<input 💾="↔️ locationHash://{autoGenId}.">
+<input 💾="vv locationHash://{autoGenId}.">
 ```
 
 Example 3:  Persist innerHTML: [TODO]
@@ -75,7 +75,7 @@ If using the locationHash option, must use trusted types [TODO]
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
     target='[-innerHTML]'
-    💾="of innerHTML ↔️ indexedDB://myDB/myStore/{autoGenId}"
+    💾="of innerHTML vv indexedDB://myDB/myStore/{autoGenId}"
 >
     <label>
         Proxy to: 

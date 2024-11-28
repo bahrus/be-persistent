@@ -7,7 +7,7 @@ import { MountObserver } from 'mount-observer/MountObserver.js';
 const of = String.raw `^[o|O]f `;
 const localProp = String.raw `(?<localProp>[\w\:]+)`;
 const localPropLocalEvent = String.raw `${localProp}\:\:(?<localEvent>[\w]+)`;
-const usl = String.raw ` ↔️ (?<usl>[\w\:\/\?\.]+)`;
+const usl = String.raw ` vv (?<usl>[\w\:\/\?\.\{\}]+)`;
 const ofLocalPropLocalEventUSL = String.raw `${of}${localPropLocalEvent}${usl}`;
 
 /**
