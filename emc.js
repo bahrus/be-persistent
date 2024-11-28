@@ -7,8 +7,9 @@ import { MountObserver } from 'mount-observer/MountObserver.js';
 const of = String.raw `^[o|O]f `;
 const localProp = String.raw `(?<localProp>[\w\:]+)`;
 const localPropLocalEvent = String.raw `${localProp}\:\:(?<localEvent>[\w]+)`;
-const usl = String.raw ` via (?<usl>[\w\:\/\?\.\{\}]+)`;
-const ofLocalPropLocalEventUSL = String.raw `${of}${localPropLocalEvent}${usl}`;
+const usl = String.raw `(?<usl>[\w\:\/\?\.\{\}]+)`;
+const ofLocalPropLocalEventUSL = String.raw `${of}${localPropLocalEvent} via ${usl}`;
+const viaUSL = String.raw `^[v|V]ia ${usl}`;
 
 /**
  * @type {EMC<any, AP>}
@@ -24,6 +25,10 @@ export const emc = {
                 rules: [
                     {
                         regExp: ofLocalPropLocalEventUSL,
+                        defaultVals: {},
+                    },
+                    {
+                        regExp: viaUSL,
                         defaultVals: {},
                     }
                 ]

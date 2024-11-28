@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explicit Default Settings</title>
+    <title>Store to IDB</title>
     <!-- #include virtual="/imports.html" -->
 </head>
 <body>
-    <input be-persistent="of value::input via sessionStorage://{autoGenId}.">
+    <input 💾="via indexedDB://myDB/myStore/{autoGenId}.">
     <script type=module>
-        import '/emc.js';
+        import '/💾.js';
     </script>
 </body>
 </html>

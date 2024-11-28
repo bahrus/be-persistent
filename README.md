@@ -39,7 +39,7 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 
 
 
-## Emoji alternative [TODO]
+## Emoji alternative
 
 ```html
 <input 💾="of value::input via sessionStorage://{autoGenId}.">
@@ -47,7 +47,7 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 
 
 
-## Example 2:  Store to IDB [TODO]
+## Example 2:  Store to IDB
 
 ```html
 <input 💾="via indexedDB://myDB/myStore/{autoGenId}.">
