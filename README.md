@@ -65,7 +65,7 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 <input 💾="via locationHash://{autoGenId}.">
 ```
 
-## Example 5:  Persist unsafe innerHTML: [WIP]
+## Example 5:  Persist unsafe innerHTML
 
 There are certain, limited circumstances, where we want to throw security to the dogs, and provide a convenient way of creating "virtual web pages embedded in the url".  Here's how we do this:
 
