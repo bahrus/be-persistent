@@ -75,6 +75,11 @@ export class Binder{
 
             }
         }
+        if(e.target === enhancedElement){
+            const currentLocalVal = enhancedElement[localProp || 'value'];
+            await set(staticUSL, currentLocalVal);
+            return;
+        }
         throw 'NI';
     }
 }
