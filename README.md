@@ -59,13 +59,13 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 <input 💾="via cookie://{autoGenId}.">
 ```
 
-## Example 4:  Store to location.hash [TODO]
+## Example 4:  Store to location.hash
 
 ```html
 <input 💾="via locationHash://{autoGenId}.">
 ```
 
-Example 3:  Persist innerHTML: [TODO]
+## Example 5:  Persist innerHTML: [TODO]
 
 If using the locationHash option, must use trusted types [TODO]
 
