@@ -53,7 +53,7 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 <input 💾="via indexedDB://myDB/myStore/{autoGenId}.">
 ```
 
-## Example 3:  Store to a cookie [TODO]
+## Example 3:  Store to a cookie
 
 ```html
 <input 💾="via cookie://{autoGenId}.">
