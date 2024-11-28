@@ -62,7 +62,6 @@ class BePersistent extends BE {
             this.#ac.abort();
         }
         this.#ac = new AbortController();
-        console.log({rules});
         const {Binder} = await import('./Binder.js');
         for(const rule of rules){
             new Binder(self, rule, this.#ac);
