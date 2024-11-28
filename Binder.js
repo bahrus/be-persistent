@@ -51,6 +51,11 @@ export class Binder{
                 case 'outerHTML':
                     throw 'NI';
                 case 'unsanitizedInnerHTML':
+                    const evt = new AnythingGoesEvent('securitypolicyviolation');
+                    enhancedElement.dispatchEvent(evt);
+                    if(!evt.anythingGoes){
+                        throw 403;
+                    }
                     localProp = 'innerHTML';
                     //[TODO] raise onsecuritypolicyviolation event,
                     //confirm event.anythingGoes === true
@@ -103,7 +108,14 @@ function cleanse(s){
     return s.replaceAll(':', '_sc_').replaceAll('/', '_slash_');
 }
 
-const locationKey  = location.origin + location.pathname + '_q_' + location.search
+const locationKey  = location.origin + location.pathname + '_q_' + location.search;
+
+class AnythingGoesEvent extends SecurityPolicyViolationEvent{
+    /**
+     * @type {boolean}
+     */
+    anythingGoes;
+}
 
 
 
