@@ -75,7 +75,7 @@ There are certain, limited circumstances, where we want to throw security to the
 <form
     action="https://o2h-cw.bahrus.workers.dev/"
     💾="of unsanitizedInnerHTML via locationHash://{autoGenId}"
-
+    onsecuritypolicyviolation="event.anythingGoes = true"
 >
     <label>
         Proxy to: 
