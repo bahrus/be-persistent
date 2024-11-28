@@ -16,16 +16,18 @@
   "type": "module",
   "exports": {
     ".": "./be-persistent.js",
-    "./be-persistent.js": "./be-persistent.js"
+    "./be-persistent.js": "./be-persistent.js",
+    "./💾.js": "./💾.js",
+    "./emc.js": "./emc.js"
   },
   "files": [
     "*.*"
   ],
-  "types": "types.d.ts",
+  "types": "./ts-refs/be-persistent/types.d.ts",
   "dependencies": {
-    "be-enhanced": "0.0.154",
-    "be-hive": "0.0.233",
-    "trans-render": "0.0.862",
+    "be-enhanced": "0.0.155",
+    "be-hive": "0.0.234",
+    "trans-render": "0.0.863",
     "xtal-shell": "0.0.27"
   },
   "devDependencies": {
