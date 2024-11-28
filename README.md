@@ -1,4 +1,4 @@
-# be-persistent (💾) [TODO]
+# be-persistent (💾) [WIP]
 
 <p align="center">
 <img src="https://github.com/bahrus/be-persistent/raw/baseline/9bhbww.jpg" alt="Where are my cookies?" width="400" style="max-width: 100%;">
@@ -13,7 +13,7 @@
 
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
-## Example 1:  Default settings [TODO]
+## Example 1:  Default settings
 
 ```html
 <input be-persistent>
