@@ -65,10 +65,16 @@ The end of the statement above: "sessionStorage://{autoGenId}" is based on the [
 <input 💾="via locationHash://{autoGenId}.">
 ```
 
-## Example 5:  Persist unsafe innerHTML: [TODO]
+## Example 5:  Persist unsafe innerHTML: [WIP]
 
 There are certain, limited circumstances, where we want to throw security to the dogs, and provide a convenient way of creating "virtual web pages embedded in the url".  Here's how we do this:
 
+```html
+<div 💾="of unsanitizedInnerHTML via locationHash://{autoGenId}"
+    onsecuritypolicyviolation="event.anythingGoes = true">
+    <span conteneditable></span>
+</div>
+```
 
 
 ```html

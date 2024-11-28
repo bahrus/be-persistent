@@ -8,6 +8,7 @@ const of = String.raw `^[o|O]f `;
 const localProp = String.raw `(?<localProp>[\w\:]+)`;
 const localPropLocalEvent = String.raw `${localProp}\:\:(?<localEvent>[\w]+)`;
 const usl = String.raw `(?<usl>[\w\:\/\?\.\{\}]+)`;
+const ofLocalPropUSL = String.raw `${of}${localProp} via ${usl}`;
 const ofLocalPropLocalEventUSL = String.raw `${of}${localPropLocalEvent} via ${usl}`;
 const viaUSL = String.raw `^[v|V]ia ${usl}`;
 
@@ -25,6 +26,10 @@ export const emc = {
                 rules: [
                     {
                         regExp: ofLocalPropLocalEventUSL,
+                        defaultVals: {},
+                    },
+                    {
+                        regExp: ofLocalPropUSL,
                         defaultVals: {},
                     },
                     {

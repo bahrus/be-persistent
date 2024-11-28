@@ -44,12 +44,17 @@ export class Binder{
         const self = this.#selfRef.deref();
         if(self === undefined) return;
         const {enhancedElement} = self;
-        const {localProp, usl} = rule;
+        let {localProp, usl} = rule;
         if(usl !== undefined && usl.startsWith('locationHash://')){
             switch(localProp){
                 case 'innerHTML':
                 case 'outerHTML':
                     throw 'NI';
+                case 'unsanitizedInnerHTML':
+                    localProp = 'innerHTML';
+                    //[TODO] raise onsecuritypolicyviolation event,
+                    //confirm event.anythingGoes === true
+                    break;
             }
         }
 
@@ -83,7 +88,9 @@ export class Binder{
 
             }
         }
-        if(e.target === enhancedElement){
+        if(
+            e.target === enhancedElement 
+            || (localProp === 'innerHTML' && e.target &&  enhancedElement.contains(/** @type {Node} */(e.target)) )){
             const currentLocalVal = enhancedElement[localProp || 'value'];
             await set(staticUSL, currentLocalVal);
             return;

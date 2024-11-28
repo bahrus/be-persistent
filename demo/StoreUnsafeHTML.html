@@ -7,7 +7,11 @@
     <!-- #include virtual="/imports.html" -->
 </head>
 <body>
-    <input 💾="via cookie://{autoGenId}.">
+    <div 
+        💾="of unsanitizedInnerHTML via locationHash://{autoGenId}."
+        onsecuritypolicyviolation="event.anythingGoes = true">
+        <span contenteditable>abc</span>
+    </div>
     <script type=module>
         import '/💾.js';
     </script>
