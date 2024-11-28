@@ -13,7 +13,7 @@
 
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
 
-## Example 1:  Default settings
+## Default settings
 
 ```html
 <input be-persistent>
@@ -24,6 +24,8 @@ What this does:
 Stores input's value in session storage (key is based on location within the DOM), but can also be specified.
 
 The syntax above is short-hand for:
+
+## Explicit Default Settings
 
 ```html
 <input be-persistent="of value::input ↔ sessionStorage://{autoGenId}.">
