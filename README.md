@@ -37,7 +37,7 @@ Also, the event "::input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autoGenId}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
 
-
+We can apply multiple statemtns within the be-persistent attribute, separated by the "period".  Each sentence can start with "of" or "Of".
 
 ## Emoji alternative
 
