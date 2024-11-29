@@ -47,25 +47,25 @@ We can apply multiple statemtns within the be-persistent attribute, separated by
 
 
 
-## Example 2:  Store to IDB
+## Store to IDB
 
 ```html
 <input 💾="via indexedDB://myDB/myStore/{autoGenId}.">
 ```
 
-## Example 3:  Store to a cookie [TODO]
+## Store to a cookie
 
 ```html
 <input 💾="via cookie://{autoGenId}.">
 ```
 
-## Example 4:  Store to location.hash
+## Store to location.hash
 
 ```html
 <input 💾="via locationHash://{autoGenId}.">
 ```
 
-## Example 5:  Persist unsafe innerHTML
+## Persist unsafe innerHTML
 
 There are certain, limited circumstances, where we want to throw security to the dogs, and provide a convenient way of creating "virtual web pages embedded in the url".  Here's how we do this:
 
@@ -79,7 +79,7 @@ There are certain, limited circumstances, where we want to throw security to the
 
 On refreshing the browser, the inner content's edits are retained.
 
-## Example 6:  Persist safe inner HTML
+## Persist safe inner HTML
 
 We make use of trusted types [TODO]
 
