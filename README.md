@@ -9,6 +9,7 @@
 [![How big is this package in your project?](https://img.shields.io/bundlephobia/minzip/be-persistent?style=for-the-badge)](https://bundlephobia.com/result?p=be-persistent)
 <img src="http://img.badgesize.io/https://cdn.jsdelivr.net/npm/be-persistent?compression=gzip">
 [![NPM version](https://badge.fury.io/js/be-persistent.png)](http://badge.fury.io/js/be-persistent)
+[![Playwright Tests](https://github.com/bahrus/be-persistent/actions/workflows/CI.yml/badge.svg?branch=baseline)](https://github.com/bahrus/be-persistent/actions/workflows/CI.yml)
 
 
 be-persistent is a behavior/decorator/enhancement alternative to [purr-sist](https://github.com/bahrus/purr-sist).  
