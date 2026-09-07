@@ -38,7 +38,7 @@ Also, the event "input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autoGenId}" is a [Uniform Storage Locator](https://github.com/bahrus/fifteenth#readme), resolved by the [`fifteenth`](https://github.com/bahrus/fifteenth) package.  `{autoGenId}` is expanded at runtime to a location-independent DOM path so each element gets its own stable key.
 
-We can apply multiple statemtns within the be-persistent attribute, separated by the "period".  Each sentence can start with "of" or "Of".
+We can apply multiple statements within the be-persistent attribute, separated by the "period".  Each sentence can start with "of" or "Of".
 
 ## Specifying the event name
 
