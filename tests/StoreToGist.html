@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store to Gist — wiring test (stubbed fetch)</title>
+
+    <!--
+      Proves be-persistent drives fifteenth's opt-in `gist://` protocol: a USL
+      with the `gist` scheme reaches the handler `configureGist()` registered,
+      and a create (`POST /gists`) carries the element's value.  `fetch` is
+      stubbed so no real GitHub call is made (mirrors fifteenth's own unit
+      tests, which stub `fetch` for determinism).
+    -->
+    <script>
+        window.__gistCalls = [];
+        const realFetch = window.fetch.bind(window);
+        window.fetch = async (input, init) => {
+            const url = typeof input === 'string' ? input : input.url;
+            if (url && url.includes('api.github.com')) {
+                const method = (init && init.method) || 'GET';
+                let body;
+                try { body = init && init.body ? JSON.parse(init.body) : undefined; } catch { body = init && init.body; }
+                window.__gistCalls.push({ url, method, body });
+                if (method === 'POST') {
+                    return new Response(
+                        JSON.stringify({ id: 'stub-gist-id', files: { 'data.json': { content: (body && body.files && body.files['data.json'] && body.files['data.json'].content) || '' } } }),
+                        { status: 201, headers: { 'Content-Type': 'application/json' } }
+                    );
+                }
+                // GET / PATCH
+                return new Response(
+                    JSON.stringify({ id: 'stub-gist-id', files: { 'data.json': { content: '"hello-from-gist"' } } }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } }
+                );
+            }
+            return realFetch(input, init);
+        };
+    </script>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <script type=module>
+        import { configureGist } from 'fifteenth/gist.js';
+        configureGist({
+            getToken: () => 'stub-token',
+            public: false,
+            idStore: 'localStorage',   // deterministic in headless Chromium; no hash writes
+        });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <!--
+      No stored value yet, local value "hello-from-gist" is more specific, so
+      the initial reconciliation pass writes it — a POST /gists (create).
+    -->
+    <input 💾="of value via gist://be-persistent-test/data.json on change." value="hello-from-gist">
+    <!--
+      Empty field: hydration must NOT create a gist for it.  A `POST /gists`
+      whose file content is "" is what GitHub rejects with 422, so `breakTie`
+      treats an empty element value as "nothing" and skips the write.
+    -->
+    <input 💾="of value via gist://be-persistent-empty/data.json on change.">
+    <div id=target></div>
+    <script>
+        setTimeout(() => {
+            const calls = window.__gistCalls || [];
+            const created = calls.find(c =>
+                c.method === 'POST' &&
+                c.url.includes('/gists') &&
+                c.body && c.body.files && c.body.files['data.json'] &&
+                c.body.files['data.json'].content === 'hello-from-gist');
+            const emptyCreate = calls.find(c =>
+                c.method === 'POST' &&
+                c.body && c.body.files &&
+                Object.values(c.body.files).some(f => !f || f.content === ''));
+            if (created && !emptyCreate) target.setAttribute('mark', 'good');
+        }, 1500);
+    </script>
+</body>
+</html>

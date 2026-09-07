@@ -86,6 +86,36 @@ allowed) work for any event name.  The old `::` separator is no longer supported
 <input 💾="via locationHash://{autoGenId}.">
 ```
 
+## Store to a GitHub Gist
+
+`fifteenth`'s [`gist://` protocol](https://github.com/bahrus/fifteenth#github-gists-gist)
+stores a JSON document as one file inside a git-versioned
+[GitHub Gist](https://gist.github.com/).  `be-persistent` speaks it for free —
+`Binder` hands every USL straight to `fifteenth`'s `get` / `set`, which consult
+the protocol registry for any scheme beyond the built-in browser stores.
+
+`gist://` is **opt-in**, so the page has to switch it on once, before the first
+save, by calling `configureGist` (writes need a token with the `gist` scope):
+
+```html
+<script type="module">
+    import { configureGist } from 'fifteenth/gist.js';
+    configureGist({ getToken: () => localStorage.getItem('ghGistToken') });
+</script>
+```
+
+```html
+<input 💾="of value via gist://my-prefs/greeting.json on change.">
+```
+
+`gist://<alias>[/<file>]` — `<alias>` is a local name (the real gist id is kept
+in an id-store, the URL hash by default), `<file>` defaults to `data.json`.  The
+first save to an unmapped alias `POST`s a new secret gist; later saves `PATCH`.
+Prefer a real DOM event like `change` over the default `input` so a network
+round-trip isn't fired on every keystroke.  See
+[`demo/StoreToGist.html`](demo/StoreToGist.html) for a runnable page with a
+token panel.
+
 ## Persist unsafe innerHTML
 
 There are certain, limited circumstances, where we want to throw security to the dogs, and provide a convenient way of creating "virtual web pages embedded in the url".  Here's how we do this:

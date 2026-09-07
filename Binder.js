@@ -114,6 +114,11 @@ export class Binder {
  * object > function > symbol > bigint > number > boolean > string > null > undefined;
  * within a type the longer string representation wins; equal values → no action.
  *
+ * `undefined`, `null` and `''` all count as "nothing": an empty element value is
+ * never pushed to an empty store on hydration.  That write would be a no-op for
+ * the structured stores anyway, and an outright error for some remote ones —
+ * GitHub's Gist API `422`s a create whose file `content` is the empty string.
+ *
  * Replaces the legacy `trans-render/lib/breakTie.js` import (no modern drop-in).
  *
  * @param {any} lhs local (element) value
@@ -122,8 +127,9 @@ export class Binder {
  */
 function breakTie(lhs, rhs){
     if(lhs === rhs) return 'eq';
-    if(rhs === undefined || rhs === null) return (lhs === undefined || lhs === null) ? 'eq' : 'lhs';
-    if(lhs === undefined || lhs === null) return 'rhs';
+    const blank = /** @param {any} v */ v => v === undefined || v === null || v === '';
+    if(blank(rhs)) return blank(lhs) ? 'eq' : 'lhs';
+    if(blank(lhs)) return 'rhs';
     const rank = /** @param {any} v */ v => {
         switch(typeof v){
             case 'object': return 8;

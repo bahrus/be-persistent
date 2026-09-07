@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store to a GitHub Gist</title>
+    <style>
+        body { font: 15px/1.5 system-ui, sans-serif; max-width: 820px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+        h1 { font-size: 1.4rem; }
+        h2 { font-size: 1rem; }
+        label { display: block; margin: .8rem 0 .2rem; font-weight: 600; }
+        input, textarea { font: 14px/1.4 ui-monospace, monospace; width: 100%; box-sizing: border-box; padding: .45rem; }
+        button { font: inherit; padding: .4rem .8rem; margin: .2rem .3rem .2rem 0; cursor: pointer; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+        .dim { color: #777; }
+        .ok { color: #0a7d29; font-weight: 600; }
+        .bad { color: #c00; font-weight: 600; }
+        code { background: #eee; padding: .05rem .3rem; border-radius: 3px; }
+        a { color: #06c; }
+    </style>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <!--
+      `gist://` is an *opt-in* fifteenth protocol: it is not in the default
+      `protocols` bag, so nothing recognises the scheme until the page calls
+      `configureGist()`.  That call registers a `gist` reader/writer in
+      fifteenth's shared `protocolRegistry` singleton — the very same module
+      instance be-persistent's `Binder` reaches through when it lazily imports
+      `fifteenth/get.js` / `fifteenth/set.js`.  So this one call is the whole of
+      "teaching be-persistent the gist protocol".
+
+      It must run before the first gist get/set.  This module script sits textually
+      before the be-hive import below, and module scripts execute in document
+      order, so the registry is populated well before hydration touches storage.
+    -->
+    <script type=module>
+        import { configureGist } from 'fifteenth/gist.js';
+
+        configureGist({
+            // Same localStorage key fifteenth's own demos/gist.html uses, so a
+            // token pasted there (on this same origin) is picked up here with no
+            // re-paste.  Reads of a public gist need no token; create/update
+            // needs one with the `gist` scope.
+            getToken: () => localStorage.getItem('fifteenthGistToken') || undefined,
+            public: false,                       // a secret (unlisted) gist
+            description: 'be-persistent gist:// demo',
+            // idStore defaults to 'locationHash' — the gist id lands in the URL
+            // hash as #gistID:be-persistent-demo=<id>, so a reload reuses the
+            // same gist and sharing the link shares the data.
+        });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <h1>be-persistent → GitHub Gist</h1>
+    <p class="dim">
+        Both fields below are enhanced with <code>💾</code> and a
+        <code>gist://</code> USL.  On <code>change</code> (blur / Enter) the value
+        is written to one file inside a single secret gist; on reload it is read
+        back.  <code>api.github.com</code> sends permissive CORS, so this works
+        from any origin with no proxy.
+    </p>
+
+    <div class="card">
+        <h2>GitHub token (<code>gist</code> scope)</h2>
+        <p class="dim" style="margin:.2rem 0">
+            Stored only in this browser's <code>localStorage</code> (key
+            <code>fifteenthGistToken</code>), sent only to
+            <code>api.github.com</code>.  Quickest route:
+            <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=be-persistent+gist+demo"
+               target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist</a>
+            → set an expiration → <b>Generate token</b> → copy the <code>ghp_…</code> value.
+        </p>
+        <input id="token" type="password" placeholder="ghp_… or github_pat_…" autocomplete="off">
+        <div style="margin-top:.5rem">
+            <button id="saveTok">Save token</button>
+            <button id="clearTok">Clear token</button>
+            <span id="tokState" class="dim"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Persisted fields</h2>
+
+        <label for="greeting">greeting — <code>gist://be-persistent-demo/greeting.json</code></label>
+        <input id="greeting"
+               💾="of value via gist://be-persistent-demo/greeting.json on change.">
+
+        <label for="notes">notes — <code>gist://be-persistent-demo/notes.json</code></label>
+        <textarea id="notes" rows="4"
+                  💾="of value via gist://be-persistent-demo/notes.json on change."></textarea>
+
+        <p class="dim" style="margin-top:.8rem">
+            Type something, click outside the field (fires <code>change</code>),
+            then reload the page — the values come back from the gist.
+            An <em>empty</em> field writes nothing (GitHub rejects a gist file
+            with empty content), so the gist is created only once you enter a
+            real value.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>The gist</h2>
+        <div id="gistline" class="dim">alias <code>be-persistent-demo</code> — no gist id recorded yet.</div>
+        <div style="margin-top:.5rem">
+            <button id="forget">Forget gist id (clear hash)</button>
+        </div>
+        <p class="dim" style="margin:.5rem 0 0">
+            "Forget" only drops the local <code>alias → id</code> pointer in the
+            URL hash; the gist itself stays on GitHub.  The next
+            <code>change</code> then creates a fresh gist.
+        </p>
+    </div>
+
+    <script>
+        const TOKEN_KEY = 'fifteenthGistToken';
+        const tokState = document.getElementById('tokState');
+        const gistLine = document.getElementById('gistline');
+        const ALIAS = 'be-persistent-demo';
+
+        function refreshTokState() {
+            const has = !!localStorage.getItem(TOKEN_KEY);
+            tokState.textContent = has ? 'token saved' : 'no token — writes will 401';
+            tokState.className = has ? 'ok' : 'bad';
+        }
+        function idInHash() {
+            return new URLSearchParams(location.hash.slice(1)).get('gistID:' + ALIAS);
+        }
+        function showGist() {
+            const id = idInHash();
+            if (!id) {
+                gistLine.innerHTML = `alias <code>${ALIAS}</code> — no gist id recorded yet.`;
+                return;
+            }
+            gistLine.innerHTML =
+                `alias <code>${ALIAS}</code> → gist <code>${id}</code> — ` +
+                `<a href="https://gist.github.com/${id}" target="_blank" rel="noopener">gist.github.com</a> · ` +
+                `<a href="https://api.github.com/gists/${id}" target="_blank" rel="noopener">raw API</a>`;
+        }
+
+        document.getElementById('saveTok').onclick = () => {
+            const v = document.getElementById('token').value.trim();
+            if (v) localStorage.setItem(TOKEN_KEY, v);
+            document.getElementById('token').value = '';
+            refreshTokState();
+        };
+        document.getElementById('clearTok').onclick = () => {
+            localStorage.removeItem(TOKEN_KEY);
+            refreshTokState();
+        };
+        document.getElementById('forget').onclick = () => {
+            history.replaceState(history.state, '', location.pathname + location.search);
+            showGist();
+        };
+
+        refreshTokState();
+        showGist();
+        // The id-store writes the hash via history.replaceState (no hashchange
+        // event), so poll briefly after a likely write to refresh the display.
+        addEventListener('change', () => setTimeout(showGist, 1500), true);
+    </script>
+</body>
+</html>
