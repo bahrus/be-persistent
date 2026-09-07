@@ -2,36 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Use location.hash</title>
+    <!-- #include virtual="/imports.html" -->
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/emc.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
 </head>
 <body>
-    <input disabled be-persistent='{
-        "params":{
-            "where":{
-                "sessionStorage": false,
-                "hash": true
-            }
-        }
-
-    }'>
-    <script type=importmap>
-    {
-        "imports": {
-            "be-enhanced/": "../node_modules/be-enhanced/",
-            "be-hive/": "../node_modules/be-hive/",
-            "idb-keyval/": "../node_modules/idb-keyval/",
-            "mount-observer/": "../node_modules/mount-observer/",
-            "safari-14-idb-fix": "../node_modules/safari-14-idb-fix/dist/index.js",
-            "trans-render/": "../node_modules/trans-render/",
-            "xtal-element/": "../node_modules/xtal-element/",
-            "xtal-shell/": "../node_modules/xtal-shell/"
-        }
-    }
-    </script>
-    <script type=module>
-        import '../behivior.js';
-    </script>
+    <input disabled be-persistent="via locationHash://{autoGenId}." value="hello">
 </body>
 </html>

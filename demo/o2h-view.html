@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>o2h service usage</title>
     <style>
         @import "https://unpkg.com/open-props";
         @import "https://unpkg.com/open-props/normalize.min.css";
@@ -14,6 +13,18 @@
             margin:10px;
         }
     </style>
+    <!-- #include virtual="/imports.html" -->
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/emc.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
 </head>
 <body>
     <h1>o2h service usage</h1>
@@ -24,21 +35,8 @@
     <form
         action="https://o2h-cw.bahrus.workers.dev/"
         target='[-innerHTML]'
-        be-persistent='{
-            "where":{
-                "idb": true,
-                "hash": true
-            },
-            "what":{
-                "innerHTML": {
-                    "beBeatified": true
-                }
-            },
-            "when": {
-                "input": true
-            },
-            "persistOnUnload": true
-        }' 
+        be-persistent="of innerHTML via indexedDB://myDB/myStore/{autoGenId}. of unsanitizedInnerHTML via locationHash://{autoGenId}."
+        onsecuritypolicyviolation="event.anythingGoes = true"
         be-reformable='{
             "autoSubmit": false,
             "path": ["", "proxy-to"]
@@ -46,34 +44,19 @@
         be-valued
     >
         <label>
-            Proxy to: 
+            Proxy to:
             <input required name='proxy-to' type='url'>
         </label>
         <label be-typed be-clonable be-delible></label>
         <button type='submit'>Submit</button>
-    </form> 
+    </form>
     <div -innerHTML></div>
-    <script type=importmap>
-        {
-            "imports": {
-                "trans-render/": "../node_modules/trans-render/",
-                "xtal-element/": "../node_modules/xtal-element/",
-                "be-decorated/": "../node_modules/be-decorated/",
-                "be-hive/": "../node_modules/be-hive/",
-                "xtal-shell/": "../node_modules/xtal-shell/",
-                "idb-keyval/": "../node_modules/idb-keyval/",
-                "safari-14-idb-fix": "../node_modules/safari-14-idb-fix/dist/index.js"
-            }
-        }
-        </script>
-    <script type="module" crossorigin="anonymous" >
-        //import "https://esm.run/be-persistent@0.0.21";
-        import "../be-persistent.js";
+    <script type="module" crossorigin="anonymous">
         import "https://esm.run/be-typed@0.0.4";
         import "https://esm.run/be-clonable@0.0.5";
         import "https://esm.run/be-delible@0.0.6";
         import "https://esm.run/be-reformable@0.0.48";
-        import "https://esm.run/be-valued@0.0.1"
+        import "https://esm.run/be-valued@0.0.1";
     </script>
 </body>
 </html>

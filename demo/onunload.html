@@ -2,30 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Persist editable content</title>
+    <!-- #include virtual="/imports.html" -->
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/emc.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
 </head>
 <body>
-    <div contenteditable=true be-persistent='{
-        "what":{
-            "innerText": true
-        },
-        "persistOnUnload": true
-    }'>hello</div>
-    <script type=importmap>
-    {
-        "imports": {
-            "trans-render/": "../node_modules/trans-render/",
-            "xtal-element/": "../node_modules/xtal-element/",
-            "be-decorated/": "../node_modules/be-decorated/",
-            "be-hive/": "../node_modules/be-hive/",
-            "xtal-shell/": "../node_modules/xtal-shell/"
-        }
-    }
-    </script>
-    <script type=module>
-        import '../be-persistent.js';
-    </script>
+    <div contenteditable=true be-persistent="of innerHTML via sessionStorage://{autoGenId}.">hello</div>
 </body>
 </html>
