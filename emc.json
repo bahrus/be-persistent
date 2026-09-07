@@ -10,14 +10,24 @@
                 "instanceOf": "Array",
                 "parserConfig": [
                     {
-                        "name": "ofLocalPropLocalEventViaUSL",
-                        "pattern": "^[oO]f (?<localProp>[\\w:]+)::(?<localEvent>\\w+) via (?<usl>\\S+)$",
-                        "description": "of <prop>::<event> via <usl>"
+                        "name": "ofLocalPropAtLocalEventViaUSL",
+                        "pattern": "^[oO]f (?<localProp>[\\w]+)@(?<localEvent>[\\w-]+) via (?<usl>\\S+)$",
+                        "description": "of <prop>@<event> via <usl>"
+                    },
+                    {
+                        "name": "ofLocalPropViaUSLOnLocalEvent",
+                        "pattern": "^[oO]f (?<localProp>[\\w]+) via (?<usl>\\S+) on (?<localEvent>[\\w-]+)$",
+                        "description": "of <prop> via <usl> on <event>"
                     },
                     {
                         "name": "ofLocalPropViaUSL",
-                        "pattern": "^[oO]f (?<localProp>[\\w:]+) via (?<usl>\\S+)$",
+                        "pattern": "^[oO]f (?<localProp>[\\w]+) via (?<usl>\\S+)$",
                         "description": "of <prop> via <usl>"
+                    },
+                    {
+                        "name": "viaUSLOnLocalEvent",
+                        "pattern": "^[vV]ia (?<usl>\\S+) on (?<localEvent>[\\w-]+)$",
+                        "description": "via <usl> on <event>"
                     },
                     {
                         "name": "viaUSL",

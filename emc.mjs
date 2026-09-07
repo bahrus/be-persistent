@@ -7,22 +7,45 @@
 
 /**
  * Flat-structure patterns for `parse-grouped-capture-statements`.
- * Ported from the legacy `emc.js` `regExpExts.rules` regexes.  Ordered
- * most-specific first — the first match wins.  A missing statement (empty
- * attribute) yields an empty `statements` array, handled by `hydrate`.
+ * Ordered most-specific first — the first match wins.  A missing statement
+ * (empty attribute) yields an empty `statements` array, handled by `hydrate`.
+ *
+ * The DOM event that triggers a save is specified in one of two ways, matching
+ * the sibling packages:
+ *   - `@<event>` suffixed onto the property, à la
+ *     [`be-switched`](https://github.com/bahrus/be-switched#specifying-event-names)
+ *     (`of value@keyup via ...`);
+ *   - a trailing `on <event>` clause, à la
+ *     [`do-inc`](https://github.com/bahrus/do-inc#specifying-the-event-to-trigger-increment)
+ *     (`of value via ... on keyup`).
+ * When neither is given the event defaults to `input` (in `Binder`).
+ * Event names may contain hyphens (`on weight-change`).
+ *
+ * The legacy `<prop>::<event>` form is gone with no fallback — `localProp` no
+ * longer admits `:`, so a stray `::` statement simply fails to match.
  *
  * @type {PatternConfig[]}
  */
 const parsePatterns = [
     {
-        name: 'ofLocalPropLocalEventViaUSL',
-        pattern: String.raw`^[oO]f (?<localProp>[\w:]+)::(?<localEvent>\w+) via (?<usl>\S+)$`,
-        description: 'of <prop>::<event> via <usl>'
+        name: 'ofLocalPropAtLocalEventViaUSL',
+        pattern: String.raw`^[oO]f (?<localProp>[\w]+)@(?<localEvent>[\w-]+) via (?<usl>\S+)$`,
+        description: 'of <prop>@<event> via <usl>'
+    },
+    {
+        name: 'ofLocalPropViaUSLOnLocalEvent',
+        pattern: String.raw`^[oO]f (?<localProp>[\w]+) via (?<usl>\S+) on (?<localEvent>[\w-]+)$`,
+        description: 'of <prop> via <usl> on <event>'
     },
     {
         name: 'ofLocalPropViaUSL',
-        pattern: String.raw`^[oO]f (?<localProp>[\w:]+) via (?<usl>\S+)$`,
+        pattern: String.raw`^[oO]f (?<localProp>[\w]+) via (?<usl>\S+)$`,
         description: 'of <prop> via <usl>'
+    },
+    {
+        name: 'viaUSLOnLocalEvent',
+        pattern: String.raw`^[vV]ia (?<usl>\S+) on (?<localEvent>[\w-]+)$`,
+        description: 'via <usl> on <event>'
     },
     {
         name: 'viaUSL',

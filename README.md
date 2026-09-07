@@ -29,21 +29,41 @@ The syntax above is short-hand for:
 ## Explicit Default Settings
 
 ```html
-<input be-persistent="of value::input via sessionStorage://{autoGenId}.">
+<input be-persistent="of value@input via sessionStorage://{autoGenId}.">
 ```
 
-The fragment "of value::input" is assumed if not provided.
+The fragment "of value" is assumed if not provided.
 
-Also, the event "::input" is assumed if not provided.
+Also, the event "input" is assumed if not provided.
 
 The end of the statement above: "sessionStorage://{autoGenId}" is a [Uniform Storage Locator](https://github.com/bahrus/fifteenth#readme), resolved by the [`fifteenth`](https://github.com/bahrus/fifteenth) package.  `{autoGenId}` is expanded at runtime to a location-independent DOM path so each element gets its own stable key.
 
 We can apply multiple statemtns within the be-persistent attribute, separated by the "period".  Each sentence can start with "of" or "Of".
 
+## Specifying the event name
+
+The DOM event that triggers a save is spelled the same two ways the sibling
+packages allow.  Attach it to the property with `@`, the way
+[`be-switched`](https://github.com/bahrus/be-switched#specifying-event-names) does:
+
+```html
+<input be-persistent="of value@change via sessionStorage://{autoGenId}.">
+```
+
+...or trail an `on <event>` clause, the way
+[`do-inc`](https://github.com/bahrus/do-inc#specifying-the-event-to-trigger-increment) does:
+
+```html
+<input be-persistent="of value via sessionStorage://{autoGenId} on change.">
+```
+
+Both forms are equivalent, and `on my-custom-event` / `@my-custom-event` (hyphens
+allowed) work for any event name.  The old `::` separator is no longer supported.
+
 ## Emoji alternative
 
 ```html
-<input 💾="of value::input via sessionStorage://{autoGenId}.">
+<input 💾="of value@input via sessionStorage://{autoGenId}.">
 ```
 
 
