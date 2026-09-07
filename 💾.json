@@ -35,6 +35,10 @@
                         "description": "via <usl>"
                     }
                 ]
+            },
+            "nudge": "${base}-nudge",
+            "_nudge": {
+                "instanceOf": "Boolean"
             }
         }
     },

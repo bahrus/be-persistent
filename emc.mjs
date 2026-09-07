@@ -68,6 +68,12 @@ export const emc = {
                 parser: 'parse-grouped-capture-statements',
                 instanceOf: 'Array',
                 parserConfig: parsePatterns
+            },
+            // Opt-in: `<input disabled be-persistent="…" be-persistent-nudge>`.
+            // Presence re-enables the element once its value is rehydrated.
+            nudge: '${base}-nudge',
+            _nudge: {
+                instanceOf: 'Boolean'
             }
         }
     },

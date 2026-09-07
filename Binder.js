@@ -21,6 +21,14 @@ export class Binder {
     #selfRef;
 
     /**
+     * Resolves once the constructor's initial reconciliation pass has finished
+     * (value read from / written to storage).  Consumers awaiting hydration
+     * completion — e.g. the `nudge` opt-in — key off this.
+     * @type {Promise<void>}
+     */
+    whenHydrated;
+
+    /**
      * @param {AP} self
      * @param {PersistenceRule} rule
      * @param {AbortController} ac
@@ -31,7 +39,7 @@ export class Binder {
         const {localEvent} = rule;
         const {enhancedElement} = self;
         enhancedElement.addEventListener(localEvent || 'input', this, {signal: ac.signal});
-        this.handleEvent();
+        this.whenHydrated = this.handleEvent();
     }
 
     /**

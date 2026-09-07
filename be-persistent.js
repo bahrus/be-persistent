@@ -73,8 +73,16 @@ class BePersistent {
         }
 
         const {Binder} = await import('be-persistent/Binder.js');
-        for(const rule of rules){
-            new Binder(self, rule, this.#ac);
+        const binders = rules.map(rule => new Binder(self, rule, this.#ac));
+
+        // `be-persistent-nudge` opt-in: once every rule has reconciled the
+        // element with its stored value, decrement the element's `disabled`
+        // counter (via `assign-gingerly`'s `nudge`) so an input that was
+        // disabled purely to block edits pre-hydration becomes usable.
+        if(self.nudge){
+            await Promise.all(binders.map(b => b.whenHydrated));
+            const {nudge} = await import('assign-gingerly/handlers/nudge.js');
+            nudge(enhancedElement);
         }
         return {resolved: true};
     }

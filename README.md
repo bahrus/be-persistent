@@ -104,7 +104,23 @@ On refreshing the browser, the inner content's edits are retained.
 
 We make use of trusted types [TODO]
 
+## Nudging disabled elements after hydrating
 
+Server-rendered markup will sometimes ship an input as `disabled` so the visitor
+can't type into it before its persisted value has been restored.  Add the
+boolean `be-persistent-nudge` attribute (`💾-nudge` for the emoji form) and
+`be-persistent` will re-enable the element once every rule has finished
+rehydrating:
+
+```html
+<input disabled be-persistent="via locationHash://{autoGenId}." be-persistent-nudge value="hello">
+```
+
+It's strictly opt-in — without the attribute a `disabled` element stays
+`disabled`.  Under the hood this calls [`assign-gingerly`](https://github.com/bahrus/assign-gingerly/blob/baseline/handlers/nudge.ts)'s
+`nudge` handler, which decrements a `disabled` "counter" (removing the attribute
+when it hits zero), so it composes with other enhancements that disable the same
+element.
 
 ## Viewing Locally
 
