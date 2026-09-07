@@ -5,11 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emoji Alternative</title>
     <!-- #include virtual="/imports.html" -->
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
 </head>
 <body>
-    <input 💾="of value::input via sessionStorage://{autoGenId}.">
-    <script type=module>
-        import '/💾.js';
-    </script>
+    <input 💾="of value::input via sessionStorage://{autoGenId}." value="hello">
 </body>
 </html>

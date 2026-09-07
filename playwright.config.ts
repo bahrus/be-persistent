@@ -2,7 +2,7 @@
 import { PlaywrightTestConfig, devices } from '@playwright/test';
 const config: PlaywrightTestConfig = {
   webServer: {
-    command: 'python ./node_modules/ssi-server/ssi_server.py',
+    command: 'npm run serve',
     url: 'http://localhost:8000/',
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
@@ -15,14 +15,15 @@ const config: PlaywrightTestConfig = {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    // Commented out - requires Chrome 146+ features (JSON module imports with type assertion)
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
   ],
 };
 export default config;

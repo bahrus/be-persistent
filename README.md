@@ -36,7 +36,7 @@ The fragment "of value::input" is assumed if not provided.
 
 Also, the event "::input" is assumed if not provided.
 
-The end of the statement above: "sessionStorage://{autoGenId}" is based on the [Uniform Storage Path](https://github.com/bahrus/trans-render/wiki/VIIII.--Uniform-Storage-Path) vernacular.
+The end of the statement above: "sessionStorage://{autoGenId}" is a [Uniform Storage Locator](https://github.com/bahrus/fifteenth#readme), resolved by the [`fifteenth`](https://github.com/bahrus/fifteenth) package.  `{autoGenId}` is expanded at runtime to a location-independent DOM path so each element gets its own stable key.
 
 We can apply multiple statemtns within the be-persistent attribute, separated by the "period".  Each sentence can start with "of" or "Of".
 
@@ -97,8 +97,9 @@ Any web server that serves static files with server-side includes will do but...
 5. > git submodule add https://github.com/bahrus/types.git types
 6. > git submodule update --init --recursive
 7. > npm install
-8. > npm run serve
-9. Open http://localhost:8000/demo/ in a modern browser
+8. > npm run build
+9. > npm run serve
+10. Open http://localhost:8000/demo/ in a modern browser (Chrome 146+ — JSON module imports with type assertion are required)
 
 ## Running Tests
 

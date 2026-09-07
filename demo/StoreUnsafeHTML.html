@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store to Location Hash</title>
+    <title>Persist unsafe innerHTML</title>
     <!-- #include virtual="/imports.html" -->
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
 </head>
 <body>
-    <div 
+    <div
         💾="of unsanitizedInnerHTML via locationHash://{autoGenId}."
         onsecuritypolicyviolation="event.anythingGoes = true">
         <span contenteditable>abc</span>
     </div>
-    <script type=module>
-        import '/💾.js';
-    </script>
 </body>
 </html>

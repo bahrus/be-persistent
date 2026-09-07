@@ -17,25 +17,30 @@
   "exports": {
     ".": "./be-persistent.js",
     "./be-persistent.js": "./be-persistent.js",
-    "./💾.js": "./💾.js",
-    "./emc.js": "./emc.js"
+    "./Binder.js": "./Binder.js",
+    "./getAutoGenId.js": "./getAutoGenId.js",
+    "./emc.json": "./emc.json",
+    "./💾.json": "./💾.json"
   },
   "files": [
     "*.*"
   ],
-  "types": "./ts-refs/be-persistent/types.d.ts",
+  "types": "./types/be-persistent/types.d.ts",
   "dependencies": {
-    "be-enhanced": "0.0.155",
-    "be-hive": "0.0.234",
-    "trans-render": "0.0.863",
-    "xtal-shell": "0.0.27"
+    "assign-gingerly": "0.0.96",
+    "be-hive": "0.1.18",
+    "fifteenth": "0.0.1",
+    "mount-observer": "0.1.53",
+    "nested-regex-groups": "0.0.8",
+    "roundabout-lib": "0.0.36"
   },
   "devDependencies": {
-    "@playwright/test": "1.49.0",
-    "ssi-server": "0.0.1"
+    "@playwright/test": "1.63.0",
+    "spa-ssi": "0.0.28"
   },
   "scripts": {
-    "serve": "python3 ./node_modules/ssi-server/ssi_server.py",
+    "build": "node emc.mjs > emc.json && node 💾.mjs > 💾.json",
+    "serve": "node ./node_modules/spa-ssi/serve.js",
     "test": "playwright test",
     "safari": "npx playwright wk http://localhost:8000",
     "update": "ncu -u && npm install"

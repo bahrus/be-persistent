@@ -1,0 +1,50 @@
+{
+    "enhConfig": {
+        "enhKey": "bePersistent",
+        "spawn": "be-persistent/be-persistent.js",
+        "withAttrs": {
+            "base": "be-persistent",
+            "_base": {
+                "mapsTo": "persistenceRules",
+                "parser": "parse-grouped-capture-statements",
+                "instanceOf": "Array",
+                "parserConfig": [
+                    {
+                        "name": "ofLocalPropLocalEventViaUSL",
+                        "pattern": "^[oO]f (?<localProp>[\\w:]+)::(?<localEvent>\\w+) via (?<usl>\\S+)$",
+                        "description": "of <prop>::<event> via <usl>"
+                    },
+                    {
+                        "name": "ofLocalPropViaUSL",
+                        "pattern": "^[oO]f (?<localProp>[\\w:]+) via (?<usl>\\S+)$",
+                        "description": "of <prop> via <usl>"
+                    },
+                    {
+                        "name": "viaUSL",
+                        "pattern": "^[vV]ia (?<usl>\\S+)$",
+                        "description": "via <usl>"
+                    }
+                ]
+            }
+        }
+    },
+    "customData": {
+        "weakRef": {
+            "properties": [
+                "enhancedElement"
+            ]
+        },
+        "actions": {
+            "hydrate": {
+                "ifKeyIn": [
+                    "persistenceRules",
+                    "initialized"
+                ],
+                "ifAllOf": [
+                    "enhancedElement",
+                    "initialized"
+                ]
+            }
+        }
+    }
+}
