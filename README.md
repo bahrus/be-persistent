@@ -42,15 +42,16 @@ We can apply multiple statements within the be-persistent attribute, separated b
 
 ## Specifying the event name
 
-The DOM event that triggers a save is spelled the same two ways the sibling
-packages allow.  Attach it to the property with `@`, the way
+The DOM event that triggers a save can be optionally specified using either of the standard namings that are used by other enhancements in this framework.  
+
+1.  Attach it to the property with `@`, the way
 [`be-switched`](https://github.com/bahrus/be-switched#specifying-event-names) does:
 
 ```html
 <input be-persistent="of value@change via sessionStorage://{autoGenId}.">
 ```
 
-...or trail an `on <event>` clause, the way
+2.  ...or trail an `on <event>` clause, the way
 [`do-inc`](https://github.com/bahrus/do-inc#specifying-the-event-to-trigger-increment) does:
 
 ```html
