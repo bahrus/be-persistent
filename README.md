@@ -85,38 +85,25 @@ On refreshing the browser, the inner content's edits are retained.
 We make use of trusted types [TODO]
 
 
-## Viewing Your Element Locally
 
-Any web server that can serve static files will do, but...
+## Viewing Locally
 
-1.  Install git.
-2.  Fork/clone this repo.
-3.  Install node.js
-4.  Install Python 3 or later
-5.  Open command window to folder where you cloned this repo.
-6.  > npm install
-7.  > npm run serve
-8.  Open http://localhost:8000/demo/ in a modern browser.
+Any web server that serves static files with server-side includes will do but...
+
+1. Install git
+2. Fork/clone this repo
+3. Install node.js
+4. Open command window to folder where you cloned this repo
+5. > git submodule add https://github.com/bahrus/types.git types
+6. > git submodule update --init --recursive
+7. > npm install
+8. > npm run serve
+9. Open http://localhost:8000/demo/ in a modern browser
 
 ## Running Tests
 
 ```
 > npm run test
 ```
-
-## Using from ESM Module:
-
-```JavaScript
-import 'be-persistent/be-persistent.js';
-```
-
-## Using from CDN:
-
-```html
-<script type=module crossorigin=anonymous>
-    import 'https://esm.run/be-persistent';
-</script>
-```
-
 
 
