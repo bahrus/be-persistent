@@ -17,6 +17,12 @@
         .bad { color: #c00; font-weight: 600; }
         code { background: #eee; padding: .05rem .3rem; border-radius: 3px; }
         a { color: #06c; }
+        ol, ul { padding-left: 1.4rem; margin: .4rem 0; }
+        ol li, ul li { margin: .3rem 0; }
+        details { margin: .6rem 0; }
+        summary { cursor: pointer; font-weight: 600; }
+        .note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: .5rem .7rem; margin: .5rem 0; }
+        kbd { background: #f3f3f3; border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 4px; padding: 0 .3rem; font: inherit; }
     </style>
 
     <!-- #include virtual="/imports.html" -->
@@ -74,25 +80,92 @@
     </p>
 
     <div class="card">
-        <h2>GitHub token (<code>gist</code> scope)</h2>
+        <h2>1 · Get a GitHub token with the <code>gist</code> scope</h2>
         <p class="dim" style="margin:.2rem 0">
-            Stored only in this browser's <code>localStorage</code> (key
-            <code>fifteenthGistToken</code>), sent only to
-            <code>api.github.com</code>.  Quickest route:
-            <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=be-persistent+gist+demo"
-               target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist</a>
-            → set an expiration → <b>Generate token</b> → copy the <code>ghp_…</code> value.
+            Creating / updating a gist needs a token; reading a public gist does not.
+            The token is stored only in this browser's <code>localStorage</code>
+            (key <code>fifteenthGistToken</code> — the same one
+            <code>fifteenth</code>'s own <code>demos/gist.html</code> uses, so a
+            token you pasted there on <code>http://localhost:8000</code> is picked
+            up here already) and is sent only to <code>api.github.com</code>. Use
+            whichever route is easier — <b>the classic token is simpler</b> (one
+            checkbox).
         </p>
+
+        <details open>
+            <summary>Route A — classic token (recommended, ~30 seconds)</summary>
+            <ol>
+                <li>
+                    Open
+                    <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=be-persistent+gist+demo"
+                       target="_blank" rel="noopener">
+                        github.com/settings/tokens/new?scopes=gist</a>
+                    while signed in to GitHub. This is the <b>“Tokens (classic)”</b> screen and
+                    the link pre-fills the note and pre-ticks the one scope you need.
+                    <div class="dim">Manual path if the link ever moves:
+                        your avatar (top-right) → <kbd>Settings</kbd> →
+                        far bottom of the left sidebar → <kbd>Developer settings</kbd> →
+                        <kbd>Personal access tokens</kbd> → <kbd>Tokens (classic)</kbd> →
+                        <kbd>Generate new token</kbd> → <kbd>Generate new token (classic)</kbd>.</div>
+                </li>
+                <li>Set <b>Expiration</b> (e.g. 7 days — this is just a demo).</li>
+                <li>Under <b>Select scopes</b>, confirm the top-level checkbox
+                    <b><code>gist</code></b> (“Create gists”) is ticked. Leave everything
+                    else unchecked — <code>repo</code> is <i>not</i> needed.</li>
+                <li>Click <b>Generate token</b> at the bottom. Copy the value shown once —
+                    it starts with <code>ghp_</code>.</li>
+                <li>Paste it below and press <b>Save token</b>.</li>
+            </ol>
+        </details>
+
+        <details>
+            <summary>Route B — fine-grained token (where “Account permissions” hides)</summary>
+            <ol>
+                <li>Open
+                    <a href="https://github.com/settings/personal-access-tokens/new"
+                       target="_blank" rel="noopener">
+                        github.com/settings/personal-access-tokens/new</a>
+                    (<kbd>Developer settings</kbd> →
+                    <kbd>Personal access tokens</kbd> →
+                    <kbd>Fine-grained tokens</kbd> → <kbd>Generate new token</kbd>).</li>
+                <li>Fill in <b>Token name</b> and <b>Expiration</b>.</li>
+                <li>Set <b>Resource owner</b> to your own account.
+                    <div class="note">
+                        The <b>“Account permissions”</b> section does <b>not appear</b> until
+                        a Resource owner is selected, and it sits <b>below</b> the long
+                        <b>“Repository permissions”</b> list — scroll past all of those.
+                        It is a separate, collapsed group near the bottom of the page.
+                    </div>
+                </li>
+                <li>You can leave <b>Repository access</b> on <b>“Public repositories”</b> or
+                    <b>“No access”</b> — gists are not repositories.</li>
+                <li>Scroll to <b>Permissions → Account permissions</b>, find <b>“Gists”</b>,
+                    and change its dropdown from <i>No access</i> to <b>Read and write</b>.</li>
+                <li>Click <b>Generate token</b>. Copy the value — it starts with
+                    <code>github_pat_</code>.</li>
+                <li>Paste it below and press <b>Save token</b>.</li>
+            </ol>
+            <p class="dim">
+                If your account belongs to an organization that hasn't opted into
+                fine-grained tokens, “Account permissions” can still be missing — use
+                Route A in that case.
+            </p>
+        </details>
+
         <input id="token" type="password" placeholder="ghp_… or github_pat_…" autocomplete="off">
         <div style="margin-top:.5rem">
             <button id="saveTok">Save token</button>
             <button id="clearTok">Clear token</button>
             <span id="tokState" class="dim"></span>
         </div>
+        <p class="dim" style="margin:.5rem 0 0">
+            Revoke it any time at
+            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a>.
+        </p>
     </div>
 
     <div class="card">
-        <h2>Persisted fields</h2>
+        <h2>2 · Persisted fields</h2>
 
         <label for="greeting">greeting — <code>gist://be-persistent-demo/greeting.json</code></label>
         <input id="greeting"
@@ -112,7 +185,7 @@
     </div>
 
     <div class="card">
-        <h2>The gist</h2>
+        <h2>3 · The gist</h2>
         <div id="gistline" class="dim">alias <code>be-persistent-demo</code> — no gist id recorded yet.</div>
         <div style="margin-top:.5rem">
             <button id="forget">Forget gist id (clear hash)</button>

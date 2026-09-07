@@ -381,3 +381,70 @@ blur it. `demo/StoreToGist.html` gained a line saying so.
 caller handed it `''` — the 422 is guaranteed whenever it does. A defensive
 guard there (skip or reject a write whose serialized content is empty) would
 belong in `fifteenth`, not here. Say the word and I'll add it.
+
+## Bruce's Response II
+
+Please add the guard to fifteenth/gist.js
+
+Also, I really like the thorough explanation of obtaining the gist token found in [gist.html](/fifteenth/demos/gist.html).  Can you apply the same to [StoreToGist.html?](/be-persistent/demo/StoreToGist.html)?
+
+---
+
+## Response to Response II
+
+Both done.
+
+### Guard in `fifteenth/gist.js` (+ `gist.ts`, rebuilt via `npm run build`)
+
+New `gistContent(value)` helper wraps `serialize` and throws when the result
+would be an empty string (`''`, `undefined`, or anything that `JSON.stringify`s
+to `undefined`):
+
+```js
+function gistContent(value) {
+    const content = serialize(value);
+    if (typeof content !== 'string' || content === '') {
+        throw new Error('gist write: a gist file cannot be empty — refusing to write '
+            + (value === undefined ? 'undefined' : JSON.stringify(value))
+            + ' (GitHub 422s an empty create and treats an empty update as deleting the file)');
+    }
+    return content;
+}
+```
+
+`createGist` and `patchGist` now call `gistContent(value)` instead of
+`serialize(value)`, so the check fires **before** `fetch` — no doomed request,
+no accidental file deletion on PATCH (GitHub reads empty `content` on update as
+"remove this file"). The throw rejects the `write` promise with a clear message.
+The accessor-chain path is unaffected — it always serializes an object
+(`{}` at minimum).
+
+- `gist.ts` module-doc Notes gained a bullet about the constraint.
+- `tests/test-gist.html` gained a case: an empty create rejects and issues no
+  POST / records no alias; an empty update rejects and leaves the existing file
+  intact. `npm test` green — 12 specs across chromium/firefox/webkit.
+
+This is defense-in-depth: `be-persistent`'s `breakTie` fix already stops *it*
+from ever calling `set(gist://…, '')`, but any other caller now gets a useful
+error instead of a GitHub 422 / silent delete.
+
+### Token instructions ported into `demo/StoreToGist.html`
+
+Replaced the one-paragraph token card with the full treatment from
+`fifteenth/demos/gist.html`:
+
+- **Route A — classic token** (`<details open>`, recommended): the
+  pre-filled `tokens/new?scopes=gist` link, the manual menu path as a fallback,
+  expiration, the single `gist` checkbox, `ghp_…`.
+- **Route B — fine-grained token** (`<details>`): the
+  `personal-access-tokens/new` path, the callout that **“Account permissions”**
+  only appears after picking a Resource owner and sits below all the Repository
+  permissions, *Gists → Read and write*, `github_pat_…`, plus the org-opt-in
+  caveat.
+- "Revoke it any time" footer link to `github.com/settings/tokens`.
+
+Adapted the intro to call out that the key is `fifteenthGistToken` — the same
+one `demos/gist.html` writes — so a token pasted there on
+`http://localhost:8000` is already picked up here. Cards are now numbered
+**1 · token**, **2 · persisted fields**, **3 · the gist**; added the `details` /
+`summary` / `.note` / `kbd` CSS the ported markup needs.
