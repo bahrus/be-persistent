@@ -79,8 +79,8 @@
         from any origin with no proxy.
     </p>
 
-    <div class="card">
-        <h2>1 · Get a GitHub token with the <code>gist</code> scope</h2>
+    <details id="tokenSection" class="card">
+        <summary id="tokenSummary">1 · Get a GitHub token with the <code>gist</code> scope</summary>
         <p class="dim" style="margin:.2rem 0">
             Creating / updating a gist needs a token; reading a public gist does not.
             The token is stored only in this browser's <code>localStorage</code>
@@ -162,7 +162,7 @@
             Revoke it any time at
             <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a>.
         </p>
-    </div>
+    </details>
 
     <div class="card">
         <h2>2 · Persisted fields</h2>
@@ -200,6 +200,8 @@
     <script>
         const TOKEN_KEY = 'fifteenthGistToken';
         const tokState = document.getElementById('tokState');
+        const tokenSection = document.getElementById('tokenSection');
+        const tokenSummary = document.getElementById('tokenSummary');
         const gistLine = document.getElementById('gistline');
         const ALIAS = 'be-persistent-demo';
 
@@ -207,6 +209,11 @@
             const has = !!localStorage.getItem(TOKEN_KEY);
             tokState.textContent = has ? 'token saved' : 'no token — writes will 401';
             tokState.className = has ? 'ok' : 'bad';
+            tokenSummary.innerHTML = has
+                ? '<span class="ok">✅ GitHub token found</span>'
+                : '1 · Get a GitHub token with the <code>gist</code> scope';
+            // Collapse once a token is present; keep it open while there is none.
+            tokenSection.open = !has;
         }
         function idInHash() {
             return new URLSearchParams(location.hash.slice(1)).get('gistID:' + ALIAS);
