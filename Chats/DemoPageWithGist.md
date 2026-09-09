@@ -448,3 +448,74 @@ one `demos/gist.html` writes — so a token pasted there on
 `http://localhost:8000` is already picked up here. Cards are now numbered
 **1 · token**, **2 · persisted fields**, **3 · the gist**; added the `details` /
 `summary` / `.note` / `kbd` CSS the ported markup needs.
+
+## Bruce's Response III Versioning guids / hashes
+
+As a point of interesting, the links that seem to be associated with gists, such as those found in [Links](../demo/Links.html) all seem to have guid's which don't change when I edit the gist and add data.  I guess they just get the latest.
+
+Is there some way to add more information to these links, so it points to a particular revision, so that the response will never change (as long as the gist isn't deleted I guess)?
+
+---
+
+## Response to Response III
+
+Short answer: yes. Every gist edit is a commit, and GitHub will serve any past
+revision by its 40‑char SHA. The GUID in your links (`e04f351f…`) is the *repo*;
+a revision SHA is the *commit*. Add the SHA and the response is frozen to that
+revision for good — until the gist is deleted.
+
+### The URL forms
+
+For gist id `ID`, user `bahrus`, revision `SHA`, file `F`:
+
+| Want | Latest (mutable) | Pinned (immutable) |
+|---|---|---|
+| Embed script (as in `Links.html`) | `https://gist.github.com/bahrus/ID.js` | `https://gist.github.com/bahrus/ID/SHA.js` |
+| Rendered page | `https://gist.github.com/bahrus/ID` | `https://gist.github.com/bahrus/ID/SHA` |
+| Raw file | `https://gist.githubusercontent.com/bahrus/ID/raw/F` | `https://gist.githubusercontent.com/bahrus/ID/raw/SHA/F` |
+| API | `GET /gists/ID` | `GET /gists/ID/SHA` |
+
+The embed `<script>` tag takes the SHA the same way — `/ID/SHA.js` — and renders
+that snapshot. `Links.html` today uses the bare `ID.js` form, so all four track
+latest. (Even the "latest" embed is CDN‑cached and can lag a minute or two after
+an edit; a pinned one is stable by construction.)
+
+### Where the SHA comes from
+
+- **Web UI:** the gist's **Revisions** tab — each entry links to `/ID/SHA`.
+- **API:** `GET /gists/ID` returns a `history[]` array, newest first;
+  `history[0].version` is the current SHA. `GET /gists/ID/commits` is the
+  paginated form.
+- **On write:** the `POST` / `PATCH /gists` response that `fifteenth/gist.js`
+  already receives carries that same `history[0].version` — the SHA of the
+  revision the write just created.
+
+Public gists (which is what the `Links.html` embeds are) need no token for any of
+these; a secret gist's revisions require the same auth as the gist itself.
+
+### Pinning the links in `Links.html`
+
+Once a gist's content is where you want it, copy its current SHA from the
+Revisions tab and change the script URL from `…/ID.js` to `…/ID/SHA.js`. That
+tag's rendered output never changes again.
+
+### Adding it to be‑persistent / fifteenth (only if you want it)
+
+The persistence round‑trip deliberately wants *latest* — pinning a read to a
+revision makes later edits invisible, which is the opposite of a live store — so
+this shouldn't be on by default.
+
+But `fifteenth`'s gist reader could optionally honor a revision carried in the id
+pointer. The hash today is `#gistID:be-persistent-demo=ID`; extend the grammar
+with an optional `@SHA` suffix —
+
+```
+#gistID:be-persistent-demo=ID@SHA
+```
+
+— and have the reader call `GET /gists/ID/SHA` when a SHA is present, plain
+`GET /gists/ID` otherwise. The writer already holds `history[0].version` after
+each `PATCH`, so a `pin: true` option on `configureGist()` could write that SHA
+back into the hash, giving you a shareable frozen link that an ordinary
+(unpinned) load still treats as live. That's a `fifteenth` change — say the word
+and I'll spec it there.
