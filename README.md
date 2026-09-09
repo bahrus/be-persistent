@@ -131,6 +131,23 @@ There are certain, limited circumstances, where we want to throw security to the
 
 On refreshing the browser, the inner content's edits are retained.
 
+`of unsanitizedInnerHTML` is the opt-in for round-tripping **raw markup**: the
+element must acknowledge it by handling `securitypolicyviolation` and setting
+`event.anythingGoes = true`, after which the rule behaves as plain `innerHTML`.
+It is storage-agnostic — swap `locationHash://` for any other USL. With
+[`gist://`](#store-to-a-github-gist) the markup lives in a secret gist and only
+the `#gistID:…` pointer stays in the URL; prefer a real event like `focusout`
+over the default `input` so a network write isn't fired on every keystroke:
+
+```html
+<div 💾="of unsanitizedInnerHTML via gist://my-page/markup.html on focusout."
+    onsecuritypolicyviolation="event.anythingGoes = true">
+    <span contenteditable></span>
+</div>
+```
+
+See [`demo/StoreUnsafeHTMLWithGist.html`](demo/StoreUnsafeHTMLWithGist.html).
+
 ## Persist safe inner HTML
 
 We make use of trusted types [TODO]

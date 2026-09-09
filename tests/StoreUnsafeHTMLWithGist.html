@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persist unsafe innerHTML to a gist — wiring test (stubbed fetch)</title>
+
+    <!--
+      Proves `of unsanitizedInnerHTML via gist://…` works: the
+      `securitypolicyviolation` opt-in still gates it (div without the handler
+      must NOT write), and with the opt-in the element's raw innerHTML reaches
+      `POST /gists`. `fetch` is stubbed so no real GitHub call is made.
+    -->
+    <script>
+        window.__gistCalls = [];
+        const realFetch = window.fetch.bind(window);
+        window.fetch = async (input, init) => {
+            const url = typeof input === 'string' ? input : input.url;
+            if (url && url.includes('api.github.com')) {
+                const method = (init && init.method) || 'GET';
+                let body;
+                try { body = init && init.body ? JSON.parse(init.body) : undefined; } catch { body = init && init.body; }
+                window.__gistCalls.push({ url, method, body });
+                if (method === 'POST') {
+                    return new Response(
+                        JSON.stringify({ id: 'stub-gist-id', files: { 'markup.html': { content: (body && body.files && body.files['markup.html'] && body.files['markup.html'].content) || '' } } }),
+                        { status: 201, headers: { 'Content-Type': 'application/json' } }
+                    );
+                }
+                return new Response(
+                    JSON.stringify({ id: 'stub-gist-id', files: { 'markup.html': { content: '<span contenteditable="">from gist</span>' } } }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } }
+                );
+            }
+            return realFetch(input, init);
+        };
+    </script>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <script type=module>
+        import { configureGist } from 'fifteenth/gist.js';
+        configureGist({
+            getToken: () => 'stub-token',
+            public: false,
+            idStore: 'localStorage',   // deterministic; no hash writes
+        });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <!-- Opt-in present: hydration must create a gist seeded with this markup. -->
+    <div id="withOptIn"
+        💾="of unsanitizedInnerHTML via gist://ut-optin/markup.html on focusout."
+        onsecuritypolicyviolation="event.anythingGoes = true"><span contenteditable>seed-markup</span></div>
+
+    <!-- No opt-in: Binder throws 403, nothing is written. -->
+    <div id="noOptIn"
+        💾="of unsanitizedInnerHTML via gist://ut-nooptin/markup.html on focusout."><span contenteditable>no-optin-markup</span></div>
+
+    <div id=target></div>
+    <script>
+        setTimeout(() => {
+            const calls = window.__gistCalls || [];
+            const created = calls.find(c =>
+                c.method === 'POST' &&
+                c.url.includes('/gists') &&
+                c.body && c.body.files && c.body.files['markup.html'] &&
+                c.body.files['markup.html'].content.includes('seed-markup'));
+            const leaked = calls.find(c =>
+                c.body && c.body.files && c.body.files['markup.html'] &&
+                String(c.body.files['markup.html'].content).includes('no-optin-markup'));
+            if (created && !leaked) target.setAttribute('mark', 'good');
+        }, 1500);
+    </script>
+</body>
+</html>

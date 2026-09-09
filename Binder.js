@@ -55,21 +55,25 @@ export class Binder {
         /** @type {string} */
         let staticUSL = usl || 'sessionStorage://{autoGenId}';
 
-        if(staticUSL.startsWith('locationHash://')){
-            switch(localProp){
-                case 'innerHTML':
-                case 'outerHTML':
-                    throw 'NI';
-                case 'unsanitizedInnerHTML': {
-                    const evt = new AnythingGoesEvent('securitypolicyviolation');
-                    enhancedElement.dispatchEvent(evt);
-                    if(!evt.anythingGoes){
-                        throw 403;
-                    }
-                    localProp = 'innerHTML';
-                    break;
-                }
+        // `unsanitizedInnerHTML` is the opt-in for persisting/restoring raw
+        // markup: the element must acknowledge it by handling
+        // `securitypolicyviolation` and setting `event.anythingGoes = true`,
+        // after which the rule behaves as plain `innerHTML`.  Storage-agnostic —
+        // works with any protocol (`locationHash://`, `gist://`, …).
+        if(localProp === 'unsanitizedInnerHTML'){
+            const evt = new AnythingGoesEvent('securitypolicyviolation');
+            enhancedElement.dispatchEvent(evt);
+            if(!evt.anythingGoes){
+                throw 403;
             }
+            localProp = 'innerHTML';
+        } else if(
+            staticUSL.startsWith('locationHash://')
+            && (localProp === 'innerHTML' || localProp === 'outerHTML')
+        ){
+            // Raw `innerHTML` / `outerHTML` straight into the URL hash stays
+            // blocked — use `unsanitizedInnerHTML` (with the opt-in above).
+            throw 'NI';
         }
 
         if(staticUSL.includes('{autoGenId}')){
