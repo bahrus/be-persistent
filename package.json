@@ -29,7 +29,7 @@
   "dependencies": {
     "assign-gingerly": "0.0.96",
     "be-hive": "0.1.18",
-    "fifteenth": "0.0.4",
+    "fifteenth": "0.0.6",
     "mount-observer": "0.1.53",
     "nested-regex-groups": "0.0.8",
     "roundabout-lib": "0.0.36"

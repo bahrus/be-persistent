@@ -40,12 +40,21 @@
     <script type=module>
         import { configureGist } from 'fifteenth/gist.js';
 
+        // readVia: 'raw' (the default here) makes the `💾` rule read the stored
+        // markup off gist.githubusercontent.com/raw/<id>/markup.html — no token,
+        // no api.github.com, no rate limit — instead of GET /gists/<id>. The CDN
+        // is cached, so right after an edit a reload can show the old value for a
+        // minute; add ?readVia=api to the URL to compare the (always-fresh) API
+        // path. Writes always go through api.github.com regardless.
+        const readVia = new URLSearchParams(location.search).get('readVia') === 'api' ? 'api' : 'raw';
+
         configureGist({
             // Same localStorage key fifteenth's demos/gist.html uses, so a token
             // pasted there on this origin is picked up here with no re-paste.
             getToken: () => localStorage.getItem('fifteenthGistToken') || undefined,
             public: false,                       // a secret (unlisted) gist
             description: 'be-persistent unsafe-innerHTML gist:// demo',
+            readVia,
         });
     </script>
 
@@ -71,97 +80,16 @@
         <code>onsecuritypolicyviolation</code> handler that sets
         <code>event.anythingGoes = true</code>.
     </p>
+    <p class="dim" id="readViaLine"></p>
 
-    <details id="tokenSection" class="card">
-        <summary id="tokenSummary">1 · Get a GitHub token with the <code>gist</code> scope</summary>
-        <p class="dim" style="margin:.2rem 0">
-            Creating / updating a gist needs a token; reading a public gist does not.
-            The token is stored only in this browser's <code>localStorage</code>
-            (key <code>fifteenthGistToken</code> — the same one
-            <code>fifteenth</code>'s <code>demos/gist.html</code> uses, so a token
-            pasted there on <code>http://localhost:8000</code> is already picked
-            up) and is sent only to <code>api.github.com</code>. Use whichever
-            route is easier — <b>the classic token is simpler</b> (one checkbox).
-        </p>
-
-        <details open>
-            <summary>Route A — classic token (recommended, ~30 seconds)</summary>
-            <ol>
-                <li>
-                    Open
-                    <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=be-persistent+gist+demo"
-                       target="_blank" rel="noopener">
-                        github.com/settings/tokens/new?scopes=gist</a>
-                    while signed in to GitHub. This is the <b>“Tokens (classic)”</b> screen and
-                    the link pre-fills the note and pre-ticks the one scope you need.
-                    <div class="dim">Manual path if the link ever moves:
-                        your avatar (top-right) → <kbd>Settings</kbd> →
-                        far bottom of the left sidebar → <kbd>Developer settings</kbd> →
-                        <kbd>Personal access tokens</kbd> → <kbd>Tokens (classic)</kbd> →
-                        <kbd>Generate new token</kbd> → <kbd>Generate new token (classic)</kbd>.</div>
-                </li>
-                <li>Set <b>Expiration</b> (e.g. 7 days — this is just a demo).</li>
-                <li>Under <b>Select scopes</b>, confirm the top-level checkbox
-                    <b><code>gist</code></b> (“Create gists”) is ticked. Leave everything
-                    else unchecked — <code>repo</code> is <i>not</i> needed.</li>
-                <li>Click <b>Generate token</b> at the bottom. Copy the value shown once —
-                    it starts with <code>ghp_</code>.</li>
-                <li>Paste it below and press <b>Save token</b>.</li>
-            </ol>
-        </details>
-
-        <details>
-            <summary>Route B — fine-grained token (where “Account permissions” hides)</summary>
-            <ol>
-                <li>Open
-                    <a href="https://github.com/settings/personal-access-tokens/new"
-                       target="_blank" rel="noopener">
-                        github.com/settings/personal-access-tokens/new</a>
-                    (<kbd>Developer settings</kbd> →
-                    <kbd>Personal access tokens</kbd> →
-                    <kbd>Fine-grained tokens</kbd> → <kbd>Generate new token</kbd>).</li>
-                <li>Fill in <b>Token name</b> and <b>Expiration</b>.</li>
-                <li>Set <b>Resource owner</b> to your own account.
-                    <div class="note">
-                        The <b>“Account permissions”</b> section does <b>not appear</b> until
-                        a Resource owner is selected, and it sits <b>below</b> the long
-                        <b>“Repository permissions”</b> list — scroll past all of those.
-                        It is a separate, collapsed group near the bottom of the page.
-                    </div>
-                </li>
-                <li>You can leave <b>Repository access</b> on <b>“Public repositories”</b> or
-                    <b>“No access”</b> — gists are not repositories.</li>
-                <li>Scroll to <b>Permissions → Account permissions</b>, find <b>“Gists”</b>,
-                    and change its dropdown from <i>No access</i> to <b>Read and write</b>.</li>
-                <li>Click <b>Generate token</b>. Copy the value — it starts with
-                    <code>github_pat_</code>.</li>
-                <li>Paste it below and press <b>Save token</b>.</li>
-            </ol>
-            <p class="dim">
-                If your account belongs to an organization that hasn't opted into
-                fine-grained tokens, “Account permissions” can still be missing — use
-                Route A in that case.
-            </p>
-        </details>
-
-        <input id="token" type="password" placeholder="ghp_… or github_pat_…" autocomplete="off">
-        <div style="margin-top:.5rem">
-            <button id="saveTok">Save token</button>
-            <button id="clearTok">Clear token</button>
-            <span id="tokState" class="dim"></span>
-        </div>
-        <p class="dim" style="margin:.5rem 0 0">
-            Revoke it any time at
-            <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a>.
-        </p>
-    </details>
+    <!-- #include virtual="/gistTokenPanel.html" -->
 
     <div class="card">
         <h2>2 · Editable region — <code>gist://unsafe-html-demo/markup.html</code></h2>
 
-        <div id="editor" contenteditable
-            💾="of unsanitizedInnerHTML via gist://unsafe-html-demo/markup.html on focusout."
-            onsecuritypolicyviolation="event.anythingGoes = true"></div>
+        <textarea id="editor" contenteditable
+            💾="of value via gist://unsafe-html-demo/markup.html on focusout."
+            onsecuritypolicyviolation="event.anythingGoes = true"></textarea>
         <div id="writeErr" class="bad" hidden></div>
 
         <p class="dim" style="margin-top:.8rem">
@@ -178,7 +106,7 @@
         <h2>3 · The gist</h2>
         <div id="gistline" class="dim">alias <code>unsafe-html-demo</code> — no gist id recorded yet.</div>
         <div style="margin-top:.5rem">
-            <button id="forget">Forget gist id (clear hash)</button>
+            <button id="forget" type="button">Forget gist id (clear hash)</button>
         </div>
         <p class="dim" style="margin:.5rem 0 0">
             "Forget" only drops the local <code>alias → id</code> pointer in the
@@ -187,23 +115,31 @@
         </p>
     </div>
 
+    <div class="card">
+        <h2>4 · Load markup from a raw gist URL</h2>
+        <p class="dim" style="margin:.2rem 0">
+            <code>fifteenth</code>'s <b>raw form</b>,
+            <code>gist://&lt;owner&gt;/&lt;id&gt;/raw/&lt;sha&gt;/&lt;file&gt;</code>,
+            reads a published file straight off
+            <code>gist.githubusercontent.com</code> — no token, no
+            <code>/gists</code> API call, no rate limit; the <code>&lt;sha&gt;</code>
+            pins an immutable revision. It's the tail of the
+            <a id="rawHref" target="_blank" rel="noopener">raw URL</a>.
+        </p>
+        <input id="rawRef" spellcheck="false"
+               value="gist://bahrus/78ec8e0827f6858ad9060f88f22576a0/raw/0c40975a1055e0b0b543b212e73010781577c0b7/markup.html">
+        <div style="margin-top:.5rem">
+            <button id="loadRaw" type="button">get(usl) → editor above</button>
+            <span id="rawState" class="dim"></span>
+        </div>
+    </div>
+
     <script>
-        const TOKEN_KEY = 'fifteenthGistToken';
-        const tokState = document.getElementById('tokState');
-        const tokenSection = document.getElementById('tokenSection');
-        const tokenSummary = document.getElementById('tokenSummary');
+        // The GitHub-token panel is the shared /gistTokenPanel.html include —
+        // it owns localStorage['fifteenthGistToken'] and self-inits.
         const gistLine = document.getElementById('gistline');
         const ALIAS = 'unsafe-html-demo';
 
-        function refreshTokState() {
-            const has = !!localStorage.getItem(TOKEN_KEY);
-            tokState.textContent = has ? 'token saved' : 'no token — writes will 401';
-            tokState.className = has ? 'ok' : 'bad';
-            tokenSummary.innerHTML = has
-                ? '<span class="ok">✅ GitHub token found</span>'
-                : '1 · Get a GitHub token with the <code>gist</code> scope';
-            tokenSection.open = !has;
-        }
         function idInHash() {
             return new URLSearchParams(location.hash.slice(1)).get('gistID:' + ALIAS);
         }
@@ -219,22 +155,41 @@
                 `<a href="https://api.github.com/gists/${id}" target="_blank" rel="noopener">raw API</a>`;
         }
 
-        document.getElementById('saveTok').onclick = () => {
-            const v = document.getElementById('token').value.trim();
-            if (v) localStorage.setItem(TOKEN_KEY, v);
-            document.getElementById('token').value = '';
-            refreshTokState();
-        };
-        document.getElementById('clearTok').onclick = () => {
-            localStorage.removeItem(TOKEN_KEY);
-            refreshTokState();
-        };
         document.getElementById('forget').onclick = () => {
             history.replaceState(history.state, '', location.pathname + location.search);
             showGist();
         };
 
-        refreshTokState();
+        // Which read path the `💾` rule is using this load (mirrors the <head>
+        // config, which defaults to 'raw' unless ?readVia=api is present).
+        (function () {
+            const via = new URLSearchParams(location.search).get('readVia') === 'api' ? 'api' : 'raw';
+            const line = document.getElementById('readViaLine');
+            const q = new URLSearchParams(location.search);
+            if (via === 'raw') {
+                q.set('readVia', 'api');
+                line.innerHTML = `Reads: <code>readVia:'raw'</code> — the rule reads back from ` +
+                    `<code>gist.githubusercontent.com/raw/&lt;id&gt;/markup.html</code> (no token, no API). ` +
+                    `<a href="?${q}${location.hash}">switch to the API path →</a>`;
+            } else {
+                q.delete('readVia');
+                const qs = q.toString();
+                line.innerHTML = `Reads: <code>readVia:'api'</code> — the rule reads back with ` +
+                    `<code>GET api.github.com/gists/&lt;id&gt;</code> (always fresh). ` +
+                    `<a href="${location.pathname}${qs ? '?' + qs : ''}${location.hash}">switch to the raw CDN path →</a>`;
+            }
+        })();
+
+        // Keep the "raw URL" link in sync with the input.
+        const rawRef = document.getElementById('rawRef');
+        const rawHref = document.getElementById('rawHref');
+        function syncRawHref() {
+            const tail = rawRef.value.trim().replace(/^gist:\/\//, '');
+            rawHref.href = 'https://gist.githubusercontent.com/' + tail;
+        }
+        rawRef.addEventListener('input', syncRawHref);
+        syncRawHref();
+
         showGist();
         // The id-store writes the hash via history.replaceState (no hashchange
         // event), so poll briefly after a likely write to refresh the display.
@@ -246,12 +201,42 @@
         const writeErr = document.getElementById('writeErr');
         addEventListener('unhandledrejection', (e) => {
             const msg = String(e.reason && e.reason.message || e.reason || '');
-            if (!/gist (POST|PATCH)/.test(msg)) return;
+            if (!/gist (POST|PATCH|raw GET)/.test(msg)) return;
             e.preventDefault();
             writeErr.hidden = false;
             writeErr.textContent = /40[13]/.test(msg)
                 ? 'Gist write failed — paste a GitHub token with the "gist" scope above, then edit again.'
-                : 'Gist write failed: ' + msg;
+                : 'Gist call failed: ' + msg;
+        });
+    </script>
+
+    <script type=module>
+        // Ask 2, end to end: read published markup through fifteenth's raw form
+        // and drop it into the editable region.  No token, no api.github.com.
+        import { get } from 'fifteenth/get.js';
+
+        const rawRef = document.getElementById('rawRef');
+        const rawState = document.getElementById('rawState');
+        const editor = document.getElementById('editor');
+
+        document.getElementById('loadRaw').addEventListener('click', async () => {
+            rawState.textContent = 'loading…';
+            rawState.className = 'dim';
+            try {
+                const markup = await get(rawRef.value.trim());
+                if (markup == null) { rawState.textContent = 'not found (404)'; rawState.className = 'bad'; return; }
+                editor.innerHTML = typeof markup === 'string' ? markup : JSON.stringify(markup, null, 2);
+                // If we have a token, persist the loaded markup into our own gist
+                // (fires the same event `on focusout` listens for).
+                if (window.gistToken && window.gistToken()) {
+                    editor.dispatchEvent(new Event('focusout', { bubbles: true }));
+                }
+                rawState.textContent = 'loaded ' + (typeof markup === 'string' ? markup.length + ' chars' : 'JSON');
+                rawState.className = 'ok';
+            } catch (e) {
+                rawState.textContent = String(e && e.message || e);
+                rawState.className = 'bad';
+            }
         });
     </script>
 </body>
