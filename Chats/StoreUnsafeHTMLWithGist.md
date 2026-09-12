@@ -296,3 +296,110 @@ fifteenth/README.md              readVia documented
 fifteenth/tests/test-gist.html   stub serves owner-less /raw/<id>/…; 2 readVia assertions
 be-persistent/demo/StoreUnsafeHTMLWithGist.html   readVia:'raw' default + ?readVia=api toggle + status line
 ```
+
+## Bruce's Response III
+
+It's much closer now, but one significant difference.
+
+The link I pasted above, that came from navigating github gist => raw was:
+
+https://gist.githubusercontent.com/bahrus/78ec8e0827f6858ad9060f88f22576a0/raw/0c40975a1055e0b0b543b212e73010781577c0b7/markup.html
+
+which "localizes" the link to the bahrus user.
+
+What I'm seeing instead is:
+
+https://gist.githubusercontent.com/raw/aae8286829e113a0686525e7aa1e84c2/markup.html
+
+Is there anyway to get the bahrus in there?
+
+---
+
+## Response to Response III (and the editor redesign)
+
+Two separate threads landed at once — your edit to the demo's editable region
+(div→textarea, `of value`) and this owner-in-the-URL question. Handled both.
+
+### 1 · Editor redesign — went with your recommended split
+
+Confirmed via the earlier question: **textarea = source (`of value`, plain
+text, no opt-in needed) + a separate live preview that still requires the
+`unsanitizedInnerHTML`-style handshake.**
+
+- `#editor` — the `<textarea>` you introduced, unchanged mechanically
+  (`of value via gist://unsafe-html-demo/markup.html on focusout.`), now with a
+  `placeholder` instead of the old `:empty::before` div trick and no more
+  inert `contenteditable`/`onsecuritypolicyviolation` attributes (those did
+  nothing on a textarea).
+- New `#preview` — a plain `<div onsecuritypolicyviolation="event.anythingGoes
+  = true">`. A `renderPreview()` function builds a `SecurityPolicyViolationEvent`,
+  sets `.anythingGoes = false`, dispatches it at `#preview`, and only assigns
+  `preview.innerHTML = editor.value` if that handler flipped it to `true` — the
+  exact handshake `Binder.js`'s `unsanitizedInnerHTML` case uses, just driven by
+  the page instead of be-persistent. Runs on every `input` (live as you type)
+  and once ~1.5s after load (hydration sets `.value` programmatically, so no
+  `input` event fires for the restored value — needed a poll, same pattern the
+  file already used for `showGist`).
+- Card 5's "Load markup" button now sets `editor.value` (not `.innerHTML` —
+  that never worked on a textarea) and calls `renderPreview()` directly.
+- Folded the "Load markup" click handler into the one classic `<script>` (lazy
+  `import('fifteenth/get.js')` inside the handler, same pattern `Binder.js`
+  itself uses) — no more separate `type=module` block needing cross-script
+  variable access.
+
+Verified in a real browser: typing `Hello <b>world</b>` produces a real `<b>`
+element in `#preview` (not escaped text); clicking "Load markup" round-trips
+your actual `bahrus/78ec…` gist. No console errors.
+
+### 2 · Getting `bahrus` into the URL
+
+Root cause: `readVia:'raw'`'s owner-less form (`.../raw/<id>/<file>`) was the
+*only* shape it knew — the id-store only ever remembered a bare id, never who
+owns it.
+
+**Fixed in `fifteenth/gist.js`.** The id-store now remembers `"<owner>/<id>"`
+once the owner is known, not just `id`:
+
+- **New gist:** the `POST /gists` response already carries `owner.login` —
+  captured and stored alongside the id from the start. `readVia:'raw'` uses
+  `.../<owner>/<id>/raw/<file>` immediately, no extra request.
+- **A mapping with no owner on file yet** (created before this existed, like
+  your `aae82868…`, or by another client) **self-heals**: its next
+  `readVia:'raw'` read does one `GET /gists/<id>` to learn `owner.login`,
+  upgrades the stored value to `owner/id`, and returns the value from that same
+  call. Every read after that — including across a reload — uses the pretty,
+  owner-qualified CDN URL. One one-time API call, not per-read.
+- **A bare `gist://=<id>/…`** has no alias to remember an owner in, so it stays
+  on the owner-less form — unchanged, and the only place that shape still
+  shows up.
+- If a gist genuinely has no discoverable owner, `readVia:'raw'` just keeps
+  quietly falling back to the API for that alias (self-heal retries every
+  time) rather than guessing — never a broken CDN URL.
+
+Your existing `aae82868…` gist will pick up `bahrus` automatically the next
+time you load the page with `readVia:'raw'` (the default) — no need to
+"Forget id" and start over.
+
+### Tests / status
+
+`fifteenth`: rewrote the id-store test helper (`hashId` now unpacks
+transparently; added `rawHashValue` for the few tests that need the packed
+form) and added 3 new assertions for owner-capture-on-create, self-heal, and
+the "never discoverable → stays on the API" fallback. `npm test` green — 9
+specs × 3 browsers. `be-persistent`: `npm test` green — 7; new demo behavior
+verified live (see above).
+
+### To see it
+
+Needs another `fifteenth` publish (`0.0.6` → `0.0.7`) + `npm run update` here —
+same as last time.
+
+### Files (this round)
+
+```
+fifteenth/gist.ts, gist.js            id-store remembers owner/id; self-heal on readVia:'raw'
+fifteenth/README.md                    readVia bullet updated
+fifteenth/tests/test-gist.html         hashId auto-unpacks + rawHashValue; 3 new owner-tracking assertions
+be-persistent/demo/StoreUnsafeHTMLWithGist.html   textarea source + separate unsafe preview; load-markup sets .value
+```
+
