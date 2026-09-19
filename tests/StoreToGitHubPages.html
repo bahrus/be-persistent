@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store to GitHub Pages — wiring test (stubbed fetch)</title>
+
+    <!--
+      Proves be-persistent drives fifteenth's opt-in `githubpages://` protocol:
+      a USL with the `githubpages` scheme reaches the handler
+      `configureGitHubPages()` registered, and a create (`PUT .../contents/...`
+      with no `sha`) carries the element's value. `fetch` is stubbed so no real
+      GitHub call is made (mirrors fifteenth's own unit tests, and
+      tests/StoreToGist.html here).
+    -->
+    <script>
+        window.__ghpCalls = [];
+        const __ghpFiles = new Map(); // path -> { content, sha }
+        let __ghpSeq = 0;
+        const realFetch = window.fetch.bind(window);
+        window.fetch = async (input, init) => {
+            const url = typeof input === 'string' ? input : input.url;
+            if (!url || !url.includes('api.github.com')) return realFetch(input, init);
+
+            const method = (init && init.method) || 'GET';
+            let body;
+            try { body = init && init.body ? JSON.parse(init.body) : undefined; } catch { body = init && init.body; }
+            window.__ghpCalls.push({ url, method, body });
+
+            if (/\/repos\/[^/]+\/[^/]+$/.test(url) && method === 'GET') {
+                return new Response(JSON.stringify({ default_branch: 'main' }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+
+            const m = url.match(/\/contents\/([^?]+)/);
+            if (m) {
+                const path = decodeURIComponent(m[1]);
+                if (method === 'GET') {
+                    const f = __ghpFiles.get(path);
+                    if (!f) return new Response(JSON.stringify({ message: 'Not Found' }),
+                        { status: 404, headers: { 'Content-Type': 'application/json' } });
+                    return new Response(JSON.stringify({ content: btoa(f.content), encoding: 'base64', sha: f.sha }),
+                        { status: 200, headers: { 'Content-Type': 'application/json' } });
+                }
+                if (method === 'PUT') {
+                    const existing = __ghpFiles.get(path);
+                    const sha = 'sha-' + (++__ghpSeq);
+                    __ghpFiles.set(path, { content: atob(body.content), sha });
+                    return new Response(JSON.stringify({ content: { sha, path } }),
+                        { status: existing ? 200 : 201, headers: { 'Content-Type': 'application/json' } });
+                }
+            }
+            return new Response(JSON.stringify({ message: 'not stubbed' }),
+                { status: 405, headers: { 'Content-Type': 'application/json' } });
+        };
+    </script>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <script type=module>
+        import { configureGitHubPages } from 'fifteenth/githubpages.js';
+        configureGitHubPages({ getToken: () => 'stub-token' });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <!--
+      No stored value yet, local value "hello-from-githubpages" is more
+      specific, so the initial reconciliation pass writes it — a PUT with no
+      `sha` (create).
+    -->
+    <input 💾="of value via githubpages://acme/be-persistent-test/data.json on change." value="hello-from-githubpages">
+    <!--
+      Empty field: hydration must NOT write anything for it. `breakTie` treats
+      an empty element value as "nothing" and skips the write, same as gist://.
+    -->
+    <input 💾="of value via githubpages://acme/be-persistent-empty/data.json on change.">
+    <div id=target></div>
+    <script>
+        setTimeout(() => {
+            const calls = window.__ghpCalls || [];
+            const created = calls.find(c =>
+                c.method === 'PUT' &&
+                c.url.includes('/contents/be-persistent-test/data.json') &&
+                !c.body.sha &&
+                atob(c.body.content) === 'hello-from-githubpages');
+            const emptyWrite = calls.find(c => c.method === 'PUT' && c.url.includes('/contents/be-persistent-empty/data.json'));
+            if (created && !emptyWrite) target.setAttribute('mark', 'good');
+        }, 1500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store to GitHub Pages</title>
+    <style>
+        body { font: 15px/1.5 system-ui, sans-serif; max-width: 820px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+        h1 { font-size: 1.4rem; }
+        h2 { font-size: 1rem; }
+        label { display: block; margin: .8rem 0 .2rem; font-weight: 600; }
+        input, textarea { font: 14px/1.4 ui-monospace, monospace; width: 100%; box-sizing: border-box; padding: .45rem; }
+        button { font: inherit; padding: .4rem .8rem; margin: .2rem .3rem .2rem 0; cursor: pointer; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+        .dim { color: #777; }
+        .ok { color: #0a7d29; font-weight: 600; }
+        .bad { color: #c00; font-weight: 600; }
+        code { background: #eee; padding: .05rem .3rem; border-radius: 3px; }
+        a { color: #06c; }
+        ol, ul { padding-left: 1.4rem; margin: .4rem 0; }
+        ol li, ul li { margin: .3rem 0; }
+        details { margin: .6rem 0; }
+        summary { cursor: pointer; font-weight: 600; }
+        .note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: .5rem .7rem; margin: .5rem 0; }
+        kbd { background: #f3f3f3; border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 4px; padding: 0 .3rem; font: inherit; }
+    </style>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <!--
+      `githubpages://` is an *opt-in* fifteenth protocol: it is not in the
+      default `protocols` bag, so nothing recognises the scheme until the page
+      calls `configureGitHubPages()`. That call registers a `githubpages`
+      reader/writer in fifteenth's shared `protocolRegistry` singleton — the
+      very same module instance be-persistent's `Binder` reaches through when
+      it lazily imports `fifteenth/get.js` / `fifteenth/set.js`. So this one
+      call is the whole of "teaching be-persistent the githubpages protocol".
+
+      It must run before the first githubpages get/set. This module script sits
+      textually before the be-hive import below, and module scripts execute in
+      document order, so the registry is populated well before hydration
+      touches storage.
+    -->
+    <script type=module>
+        import { configureGitHubPages } from 'fifteenth/githubpages.js';
+
+        configureGitHubPages({
+            // Same localStorage key fifteenth's own demos/githubpages.html
+            // uses, so a token pasted there (on this same origin) is picked up
+            // here with no re-paste. Reads of a public repo need no token;
+            // create/update needs one with "Contents: Read and write".
+            getToken: (addr) => localStorage.getItem('fifteenthGitHubPagesToken') || undefined,
+            // Default readVia — 'api' is the only read-your-own-write path
+            // (verified in fifteenth's own design chat: 'raw' and 'pages' both
+            // sit behind a shared CDN cache that a write never invalidates).
+        });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <h1>be-persistent → GitHub Pages</h1>
+    <p class="dim">
+        Both fields below are enhanced with <code>💾</code> and a
+        <code>githubpages://</code> USL. On <code>change</code> (blur / Enter)
+        the value is committed straight to a file in your repo via the GitHub
+        Contents API; on reload it is read back. Unlike
+        <a href="StoreToGist.html"><code>gist://</code></a>, the two fields
+        live at real, nested paths in the repo — <code>be-persistent-demo/greeting.json</code>
+        and <code>be-persistent-demo/notes.json</code> — not two files crammed
+        into one flat gist.
+    </p>
+
+    <!-- #include virtual="/githubPagesTokenPanel.html" -->
+
+    <div class="card">
+        <h2>2 · Persisted fields</h2>
+        <div id="fieldsMount">
+            <script>
+                // githubpages:// bakes the owner (and, for a non-default repo, a
+                // `repo:<name>` segment) into the USL itself — there's no
+                // server-assigned id to hide it behind the way gist:// has.  So the
+                // actual 💾 markup is only known once the panel above has an owner
+                // configured; document.write it in (classic script, runs during
+                // parsing, well before the deferred be-hive module below hydrates)
+                // rather than shipping a placeholder USL that would 404/throw.
+                (function () {
+                    const owner = (window.githubPagesOwner && window.githubPagesOwner()) || '';
+                    if (!owner) {
+                        document.write(
+                            '<p class="bad">No owner configured yet — set one in the panel above, ' +
+                            'save, then reload this page to activate the two fields below.</p>'
+                        );
+                        return;
+                    }
+                    const repo = (window.githubPagesRepo && window.githubPagesRepo()) || '';
+                    const userRepo = owner + '.github.io';
+                    const repoSeg = repo && repo !== userRepo ? 'repo:' + repo + '/' : '';
+                    const usl = (path) => 'githubpages://' + owner + '/' + repoSeg + path;
+
+                    document.write(
+                        '<label for="greeting">greeting — <code>' + usl('be-persistent-demo/greeting.json') + '</code></label>' +
+                        '<input id="greeting" 💾="of value via ' + usl('be-persistent-demo/greeting.json') + ' on change.">' +
+                        '<label for="notes">notes — <code>' + usl('be-persistent-demo/notes.json') + '</code></label>' +
+                        '<textarea id="notes" rows="4" 💾="of value via ' + usl('be-persistent-demo/notes.json') + ' on change."></textarea>'
+                    );
+                })();
+            </script>
+        </div>
+
+        <p class="dim" style="margin-top:.8rem">
+            Type something, click outside the field (fires <code>change</code>),
+            then reload the page — the values come back from the repo. An
+            <em>empty</em> field writes nothing (<code>breakTie</code> treats a
+            blank element value as "nothing"), so no file is created until you
+            enter a real value.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>3 · The files</h2>
+        <div id="repoLine" class="dim"></div>
+    </div>
+
+    <script>
+        function showRepo() {
+            const owner = (window.githubPagesOwner && window.githubPagesOwner()) || '';
+            const repoLine = document.getElementById('repoLine');
+            if (!owner) { repoLine.textContent = 'no owner configured yet'; return; }
+            const repo = (window.githubPagesRepo && window.githubPagesRepo()) || (owner + '.github.io');
+            repoLine.innerHTML =
+                'repo <code>' + owner + '/' + repo + '</code> — ' +
+                '<a href="https://github.com/' + owner + '/' + repo + '/tree/HEAD/be-persistent-demo" target="_blank" rel="noopener">browse the folder</a> · ' +
+                '<a href="https://api.github.com/repos/' + owner + '/' + repo + '/contents/be-persistent-demo" target="_blank" rel="noopener">raw API listing</a>';
+        }
+        showRepo();
+        window.addEventListener('github-pages-config-change', showRepo);
+    </script>
+</body>
+</html>

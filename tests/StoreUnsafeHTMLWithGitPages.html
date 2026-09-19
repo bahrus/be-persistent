@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persist unsafe innerHTML to GitHub Pages — wiring test (stubbed fetch)</title>
+
+    <!--
+      Proves `of unsanitizedInnerHTML via githubpages://…` works: the
+      `securitypolicyviolation` opt-in still gates it (div without the handler
+      must NOT write), and with the opt-in the element's raw innerHTML reaches
+      a `PUT .../contents/...`. `fetch` is stubbed so no real GitHub call is
+      made.
+    -->
+    <script>
+        window.__ghpCalls = [];
+        const __ghpFiles = new Map();
+        let __ghpSeq = 0;
+        const realFetch = window.fetch.bind(window);
+        window.fetch = async (input, init) => {
+            const url = typeof input === 'string' ? input : input.url;
+            if (!url || !url.includes('api.github.com')) return realFetch(input, init);
+
+            const method = (init && init.method) || 'GET';
+            let body;
+            try { body = init && init.body ? JSON.parse(init.body) : undefined; } catch { body = init && init.body; }
+            window.__ghpCalls.push({ url, method, body });
+
+            if (/\/repos\/[^/]+\/[^/]+$/.test(url) && method === 'GET') {
+                return new Response(JSON.stringify({ default_branch: 'main' }),
+                    { status: 200, headers: { 'Content-Type': 'application/json' } });
+            }
+
+            const m = url.match(/\/contents\/([^?]+)/);
+            if (m) {
+                const path = decodeURIComponent(m[1]);
+                if (method === 'GET') {
+                    const f = __ghpFiles.get(path);
+                    if (!f) return new Response(JSON.stringify({ message: 'Not Found' }),
+                        { status: 404, headers: { 'Content-Type': 'application/json' } });
+                    return new Response(JSON.stringify({ content: btoa(f.content), encoding: 'base64', sha: f.sha }),
+                        { status: 200, headers: { 'Content-Type': 'application/json' } });
+                }
+                if (method === 'PUT') {
+                    const existing = __ghpFiles.get(path);
+                    const sha = 'sha-' + (++__ghpSeq);
+                    __ghpFiles.set(path, { content: atob(body.content), sha });
+                    return new Response(JSON.stringify({ content: { sha, path } }),
+                        { status: existing ? 200 : 201, headers: { 'Content-Type': 'application/json' } });
+                }
+            }
+            return new Response(JSON.stringify({ message: 'not stubbed' }),
+                { status: 405, headers: { 'Content-Type': 'application/json' } });
+        };
+    </script>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <script type=module>
+        import { configureGitHubPages } from 'fifteenth/githubpages.js';
+        configureGitHubPages({ getToken: () => 'stub-token' });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <!-- Opt-in present: hydration must write a file seeded with this markup. -->
+    <div id="withOptIn"
+        💾="of unsanitizedInnerHTML via githubpages://acme/ut-optin/markup.html on focusout."
+        onsecuritypolicyviolation="event.anythingGoes = true"><span contenteditable>seed-markup</span></div>
+
+    <!-- No opt-in: Binder throws 403, nothing is written. -->
+    <div id="noOptIn"
+        💾="of unsanitizedInnerHTML via githubpages://acme/ut-nooptin/markup.html on focusout."><span contenteditable>no-optin-markup</span></div>
+
+    <div id=target></div>
+    <script>
+        setTimeout(() => {
+            const calls = window.__ghpCalls || [];
+            const created = calls.find(c =>
+                c.method === 'PUT' &&
+                c.url.includes('/contents/ut-optin/markup.html') &&
+                atob(c.body.content).includes('seed-markup'));
+            const leaked = calls.find(c =>
+                c.body && c.body.content &&
+                (() => { try { return atob(c.body.content).includes('no-optin-markup'); } catch { return false; } })());
+            if (created && !leaked) target.setAttribute('mark', 'good');
+        }, 1500);
+    </script>
+</body>
+</html>

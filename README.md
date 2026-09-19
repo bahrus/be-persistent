@@ -117,6 +117,44 @@ round-trip isn't fired on every keystroke.  See
 [`demo/StoreToGist.html`](demo/StoreToGist.html) for a runnable page with a
 token panel.
 
+## Store to GitHub Pages
+
+`fifteenth`'s [`githubpages://` protocol](https://github.com/bahrus/fifteenth#github-pages-githubpages)
+stores a file at a real path inside the repo backing a
+[GitHub Pages](https://pages.github.com/) site, via the GitHub Contents API.
+`be-persistent` speaks it for free, the same way it speaks `gist://` — `Binder`
+hands every USL straight to `fifteenth`'s `get` / `set`, which consult the
+protocol registry for any scheme beyond the built-in browser stores. No
+be-persistent code change was needed to support it; see
+[`Chats/StoreUnsafeHTMLWithGitPages.md`](Chats/StoreUnsafeHTMLWithGitPages.md)
+for how that was confirmed.
+
+`githubpages://` is **opt-in**, so the page has to switch it on once, before
+the first save, by calling `configureGitHubPages` (writes need a token with
+**Contents: Read and write** on that one repo):
+
+```html
+<script type="module">
+    import { configureGitHubPages } from 'fifteenth/githubpages.js';
+    configureGitHubPages({ getToken: (addr) => localStorage.getItem('ghPagesToken') });
+</script>
+```
+
+```html
+<input 💾="of value via githubpages://bahrus/be-persistent-demo/greeting.json on change.">
+```
+
+`githubpages://<owner>[.github.io]/[repo:<repo>/]<path>` — unlike `gist://`,
+there's no alias/id-store: the path *is* the address, defaulting to the repo
+`<owner>.github.io` (a leading `repo:<name>` segment picks a different one),
+so persisted fields land at real, nested, folder-organized paths instead of
+flat files crammed into one gist. Reads default to `readVia: 'api'` — the only
+one of fifteenth's three read paths that reliably reflects a write it just
+made (`'raw'` and `'pages'` both sit behind a CDN cache a write never
+invalidates — see the fifteenth chat linked above for how that was verified).
+See [`demo/StoreToGitHubPages.html`](demo/StoreToGitHubPages.html) for a
+runnable page with a token + repo panel.
+
 ## Persist unsafe innerHTML
 
 There are certain, limited circumstances, where we want to throw security to the dogs, and provide a convenient way of creating "virtual web pages embedded in the url".  Here's how we do this:
@@ -147,6 +185,18 @@ over the default `input` so a network write isn't fired on every keystroke:
 ```
 
 See [`demo/StoreUnsafeHTMLWithGist.html`](demo/StoreUnsafeHTMLWithGist.html).
+
+With [`githubpages://`](#store-to-github-pages) the same markup lands at a
+real, browsable path in a repo instead of one file inside an opaque gist:
+
+```html
+<div 💾="of unsanitizedInnerHTML via githubpages://bahrus/my-page/markup.html on focusout."
+    onsecuritypolicyviolation="event.anythingGoes = true">
+    <span contenteditable></span>
+</div>
+```
+
+See [`demo/StoreUnsafeHTMLWithGitPages.html`](demo/StoreUnsafeHTMLWithGitPages.html).
 
 ## Persist safe inner HTML
 

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persist unsafe innerHTML to GitHub Pages</title>
+    <style>
+        body { font: 15px/1.5 system-ui, sans-serif; max-width: 820px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+        h1 { font-size: 1.4rem; }
+        h2 { font-size: 1rem; }
+        input, textarea { font: 14px/1.4 ui-monospace, monospace; width: 100%; box-sizing: border-box; padding: .45rem; }
+        textarea { resize: vertical; }
+        button { font: inherit; padding: .4rem .8rem; margin: .2rem .3rem .2rem 0; cursor: pointer; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+        .dim { color: #777; }
+        .ok { color: #0a7d29; font-weight: 600; }
+        .bad { color: #c00; font-weight: 600; }
+        code { background: #eee; padding: .05rem .3rem; border-radius: 3px; }
+        a { color: #06c; }
+        ol, ul { padding-left: 1.4rem; margin: .4rem 0; }
+        ol li, ul li { margin: .3rem 0; }
+        details { margin: .6rem 0; }
+        summary { cursor: pointer; font-weight: 600; }
+        .note { background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: .5rem .7rem; margin: .5rem 0; }
+        kbd { background: #f3f3f3; border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 4px; padding: 0 .3rem; font: inherit; }
+        #editor { min-height: 4.5rem; }
+        #preview { border: 1px dashed #bbb; border-radius: 6px; padding: .6rem .8rem; min-height: 3rem; }
+        #preview:empty::before { content: "Preview renders here once you type in the field above."; color: #999; }
+        #writeErr { margin-top: .6rem; }
+    </style>
+
+    <!-- #include virtual="/imports.html" -->
+
+    <!--
+      `githubpages://` is an opt-in fifteenth protocol — nothing recognises the
+      scheme until `configureGitHubPages()` registers a handler in fifteenth's
+      shared `protocolRegistry` singleton, the same instance be-persistent's
+      `Binder` reaches through when it lazily imports `fifteenth/get.js` /
+      `set.js`. This module script runs before the be-hive import below
+      (document order), so the registry is populated before hydration touches
+      storage.
+    -->
+    <script type=module>
+        import { configureGitHubPages } from 'fifteenth/githubpages.js';
+
+        // readVia: 'api' (the default) is the only read-your-own-write path;
+        // add ?readVia=raw to the URL to compare the cheaper, CDN-cached
+        // raw.githubusercontent.com path, which — verified in fifteenth's own
+        // design chat — can show the pre-edit value for several minutes after
+        // a save, with no client-side fix. Writes always go through
+        // api.github.com regardless.
+        const readVia = new URLSearchParams(location.search).get('readVia') === 'raw' ? 'raw' : 'api';
+
+        configureGitHubPages({
+            getToken: (addr) => localStorage.getItem('fifteenthGitHubPagesToken') || undefined,
+            readVia,
+        });
+    </script>
+
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/💾.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <h1>be-persistent → unsafe <code>innerHTML</code> → GitHub Pages</h1>
+    <p class="dim">
+        Like the <a href="StoreUnsafeHTMLWithGist.html"><code>gist://</code> version</a>,
+        the markup is edited as <em>text</em> in a plain <code>&lt;textarea&gt;</code> —
+        persisted with the ordinary <code>of value</code> rule below, no opt-in
+        needed for that part. The difference: this file lands at a real,
+        browsable path inside your repo (<code>be-persistent-demo/markup.html</code>),
+        not one file inside an opaque gist. The
+        <code>unsanitizedInnerHTML</code>-style handshake (dispatch
+        <code>securitypolicyviolation</code>, require
+        <code>event.anythingGoes = true</code>) still gates the separate
+        <b>preview</b> further down, which is the part that actually renders
+        your text as live HTML.
+    </p>
+    <p class="dim" id="readViaLine"></p>
+
+    <!-- #include virtual="/githubPagesTokenPanel.html" -->
+
+    <div class="card">
+        <h2>2 · Source</h2>
+        <div id="editorMount">
+            <script>
+                // See StoreToGitHubPages.html for why this is document.write'd
+                // rather than a static attribute: the owner (and optional repo)
+                // has to be baked into the USL itself before be-hive hydrates.
+                (function () {
+                    const owner = (window.githubPagesOwner && window.githubPagesOwner()) || '';
+                    if (!owner) {
+                        document.write(
+                            '<p class="bad">No owner configured yet — set one in the panel above, ' +
+                            'save, then reload this page to activate the editor below.</p>'
+                        );
+                        return;
+                    }
+                    const repo = (window.githubPagesRepo && window.githubPagesRepo()) || '';
+                    const userRepo = owner + '.github.io';
+                    const repoSeg = repo && repo !== userRepo ? 'repo:' + repo + '/' : '';
+                    window.__ghpUsl = 'githubpages://' + owner + '/' + repoSeg + 'be-persistent-demo/markup.html';
+
+                    document.write(
+                        '<label for="editor" style="display:block;font-weight:600;margin-bottom:.3rem">' +
+                        'source — <code>' + window.__ghpUsl + '</code></label>' +
+                        '<textarea id="editor" rows="4" ' +
+                        'placeholder="Type or paste some markup, e.g. Hello &lt;b&gt;world&lt;/b&gt;" ' +
+                        '💾="of value via ' + window.__ghpUsl + ' on focusout."></textarea>'
+                    );
+                })();
+            </script>
+        </div>
+        <div id="writeErr" class="bad" hidden></div>
+
+        <p class="dim" style="margin-top:.8rem">
+            Plain <code>of value</code> — an ordinary be-persistent rule; a
+            <code>&lt;textarea&gt;</code>'s value is always text, so it never
+            needs <code>unsanitizedInnerHTML</code>. The field starts empty, so
+            nothing is written until you type and leave it. Typing fires
+            <code>input</code> on every keystroke; this rule uses
+            <code>on focusout</code> instead so one commit is made when you
+            leave the field, not one per key. Reload the page — the text comes
+            back from the repo.
+        </p>
+    </div>
+
+    <div class="card">
+        <h2>3 · Unsafe preview</h2>
+        <p class="dim" style="margin:.2rem 0">
+            This is the part that actually needs the opt-in.
+            <code>#preview</code> renders whatever is in the source field above
+            as live HTML via <code>innerHTML</code> — but only once it
+            dispatches <code>securitypolicyviolation</code> and its own
+            <code>onsecuritypolicyviolation="event.anythingGoes = true"</code>
+            handler agrees, the same handshake <code>of unsanitizedInnerHTML</code>
+            uses internally. Updates as you type, and once after a reload
+            restores the source from the repo.
+        </p>
+        <div id="preview" onsecuritypolicyviolation="event.anythingGoes = true"></div>
+    </div>
+
+    <div class="card">
+        <h2>4 · The file</h2>
+        <div id="repoLine" class="dim"></div>
+    </div>
+
+    <div class="card">
+        <h2>5 · Load markup from any public githubpages:// path</h2>
+        <p class="dim" style="margin:.2rem 0">
+            Reading a public repo needs no token at all — <code>get()</code>
+            works the moment a scheme is registered. Point this at any real
+            file (defaults to this repo's own README, read straight off
+            <code>bahrus/be-persistent</code>).
+        </p>
+        <input id="rawRef" spellcheck="false" value="githubpages://bahrus/repo:be-persistent/README.md">
+        <div style="margin-top:.5rem">
+            <button id="loadRaw" type="button">get(usl) → source above</button>
+            <span id="rawState" class="dim"></span>
+        </div>
+    </div>
+
+    <script>
+        const editor = () => document.getElementById('editor');
+        const preview = document.getElementById('preview');
+
+        function showRepo() {
+            const owner = (window.githubPagesOwner && window.githubPagesOwner()) || '';
+            const repoLine = document.getElementById('repoLine');
+            if (!owner) { repoLine.textContent = 'no owner configured yet'; return; }
+            const repo = (window.githubPagesRepo && window.githubPagesRepo()) || (owner + '.github.io');
+            repoLine.innerHTML =
+                'file <code>' + owner + '/' + repo + '/be-persistent-demo/markup.html</code> — ' +
+                '<a href="https://github.com/' + owner + '/' + repo + '/blob/HEAD/be-persistent-demo/markup.html" target="_blank" rel="noopener">view on github.com</a> · ' +
+                '<a href="https://api.github.com/repos/' + owner + '/' + repo + '/contents/be-persistent-demo/markup.html" target="_blank" rel="noopener">raw API</a>';
+        }
+        showRepo();
+        window.addEventListener('github-pages-config-change', showRepo);
+
+        // Which read path the `💾` rule is using this load (mirrors the <head>
+        // config, which defaults to 'api' unless ?readVia=raw is present).
+        (function () {
+            const via = new URLSearchParams(location.search).get('readVia') === 'raw' ? 'raw' : 'api';
+            const line = document.getElementById('readViaLine');
+            const q = new URLSearchParams(location.search);
+            if (via === 'api') {
+                q.set('readVia', 'raw');
+                line.innerHTML = `Reads: <code>readVia:'api'</code> (default) — always sees a write it just made. ` +
+                    `<a href="?${q}${location.hash}">switch to the CDN-cached raw path →</a>`;
+            } else {
+                q.delete('readVia');
+                const qs = q.toString();
+                line.innerHTML = `Reads: <code>readVia:'raw'</code> — cheap, no rate limit, but a write can lag ` +
+                    `this read by several minutes with no client-side fix. ` +
+                    `<a href="${location.pathname}${qs ? '?' + qs : ''}${location.hash}">switch to the read-your-write API path →</a>`;
+            }
+        })();
+
+        // Unsafe preview: opt in the same way `of unsanitizedInnerHTML` does —
+        // dispatch `securitypolicyviolation`, require the element's own handler
+        // to set `event.anythingGoes = true` — then, and only then, assign the
+        // source text into `innerHTML`.
+        function renderPreview() {
+            const el = editor();
+            if (!el) return;
+            const evt = new SecurityPolicyViolationEvent('securitypolicyviolation');
+            evt.anythingGoes = false;
+            preview.dispatchEvent(evt);
+            if (evt.anythingGoes) preview.innerHTML = el.value;
+        }
+        if (editor()) editor().addEventListener('input', renderPreview);
+        // `of value` hydration assigns editor.value programmatically (no
+        // `input` event fires for that), so render once shortly after load to
+        // reflect whatever came back from the repo.
+        setTimeout(renderPreview, 1500);
+
+        // be-persistent doesn't await the Binder's write promise, so a failed
+        // write (e.g. no token → 401/403) surfaces as an unhandled rejection.
+        // Turn that into a visible hint instead of a bare console error.
+        const writeErr = document.getElementById('writeErr');
+        addEventListener('unhandledrejection', (e) => {
+            const msg = String(e.reason && e.reason.message || e.reason || '');
+            if (!/githubpages (PUT|GET|raw GET|pages GET)/.test(msg)) return;
+            e.preventDefault();
+            writeErr.hidden = false;
+            writeErr.textContent = /40[13]/.test(msg)
+                ? 'Write failed — paste a GitHub token with Contents: Read and write on this repo above, then edit again.'
+                : 'githubpages call failed: ' + msg;
+        });
+
+        // Ask 5, end to end: read a public file through fifteenth directly.
+        // Dynamic import — same lazy-load pattern be-persistent's own Binder
+        // uses for fifteenth/get.js — keeps this a plain classic script.
+        const rawRef = document.getElementById('rawRef');
+        const rawState = document.getElementById('rawState');
+        document.getElementById('loadRaw').addEventListener('click', async () => {
+            rawState.textContent = 'loading…';
+            rawState.className = 'dim';
+            try {
+                const { get } = await import('fifteenth/get.js');
+                const markup = await get(rawRef.value.trim());
+                if (markup == null) { rawState.textContent = 'not found (404)'; rawState.className = 'bad'; return; }
+                const el = editor();
+                if (el) {
+                    el.value = typeof markup === 'string' ? markup : JSON.stringify(markup, null, 2);
+                    renderPreview();
+                    // If we have a configured owner + token, persist the loaded
+                    // markup into our own file (fires the same event `on
+                    // focusout` listens for).
+                    if (window.githubPagesOwner && window.githubPagesOwner() && window.githubPagesToken && window.githubPagesToken()) {
+                        el.dispatchEvent(new Event('focusout', { bubbles: true }));
+                    }
+                }
+                rawState.textContent = 'loaded ' + (typeof markup === 'string' ? markup.length + ' chars' : 'JSON');
+                rawState.className = 'ok';
+            } catch (e) {
+                rawState.textContent = String(e && e.message || e);
+                rawState.className = 'bad';
+            }
+        });
+    </script>
+</body>
+</html>
