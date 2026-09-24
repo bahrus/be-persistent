@@ -7,10 +7,13 @@
     <!-- #include virtual="/imports.html" -->
 </head>
 <body>
-    <input disabled>
+    <input id="input" disabled value="hello">
     <script type=module>
         import {defBePersistent} from '/def.js';
         await defBePersistent(document.body);
+        input.enh.set.bePersistent.nudge = true;
+        input.enh.set.bePersistent.store = 'locationHash://{autoGenId}';
+        console.log(input.enh.bePersistent);
     </script>
 </body>
 </html>
