@@ -13,6 +13,5 @@ export async function defBePersistent(ref){
     const registry = ref?.customElementRegistry ?? customElements;
     const {enhancementRegistry} = registry;
     enhancementRegistry.push(enhConfig);
-    const {default: emc2} = await import('./emc.json', {with: {type: 'json'}});
 
 }
