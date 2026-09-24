@@ -81,9 +81,15 @@ export const emc = {
         weakRef: {
             properties: ['enhancedElement']
         },
+        // Transfers the attribute-parsed `persistenceRules` into `store` —
+        // the property `hydrate` actually reads. Programmatic callers skip
+        // `persistenceRules` entirely and assign `store` directly.
+        compacts: {
+            when_persistenceRules_changes_call_onPersistenceRulesChange: 0
+        },
         actions: {
             hydrate: {
-                ifKeyIn: ['persistenceRules', 'initialized'],
+                ifKeyIn: ['store', 'initialized'],
                 ifAllOf: ['enhancedElement', 'initialized']
             }
         }

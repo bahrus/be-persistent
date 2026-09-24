@@ -1,5 +1,5 @@
 // @ts-check
-/** @import {Actions, PAP, AllProps, AP, ProPAP, PersistenceRule} from './types/be-persistent/types' */;
+/** @import {Actions, PAP, AllProps, AP, ProPAP, PersistenceRule, PersistenceRuleConfig} from './types/be-persistent/types' */;
 /** @import {RoundaboutOptions} from './types/roundabout/types' */;
 /** @import {ElementEnhancementGateway, SpawnContext} from './types/assign-gingerly/types' */;
 /** @import {EMC} from './types/mount-observer/types' */;
@@ -50,16 +50,17 @@ class BePersistent {
     #ac;
 
     /**
+     * Transfers the attribute-parsed `persistenceRules` into `store` — the
+     * property `hydrate` and all programmatic callers read. Invoked by the
+     * `when_persistenceRules_changes_call_onPersistenceRulesChange` compact,
+     * never called directly and never listed as an action (see the
+     * compact/action conflict note in the enhancement-conversion guide).
      * @param {AP} self
-     * @returns {ProPAP}
+     * @returns {PAP}
      */
-    async hydrate(self){
-        const {persistenceRules, enhancedElement} = self;
-        if(persistenceRules === undefined || enhancedElement === undefined) return {};
-
-        // Tear down any listeners from a previous hydrate pass.
-        if(this.#ac !== undefined) this.#ac.abort();
-        this.#ac = new AbortController();
+    onPersistenceRulesChange(self){
+        const {persistenceRules} = self;
+        if(persistenceRules === undefined) return {};
 
         /** @type {PersistenceRule[]} */
         const rules = [];
@@ -71,6 +72,22 @@ class BePersistent {
         if(rules.length === 0){
             rules.push({localProp: 'value', localEvent: 'input', usl: 'sessionStorage://{autoGenId}'});
         }
+        return {store: rules};
+    }
+
+    /**
+     * @param {AP} self
+     * @returns {ProPAP}
+     */
+    async hydrate(self){
+        const {store, enhancedElement} = self;
+        if(store === undefined || enhancedElement === undefined) return {};
+
+        // Tear down any listeners from a previous hydrate pass.
+        if(this.#ac !== undefined) this.#ac.abort();
+        this.#ac = new AbortController();
+
+        const rules = normalizeStore(store);
 
         const {Binder} = await import('be-persistent/Binder.js');
         const binders = rules.map(rule => new Binder(self, rule, this.#ac));
@@ -89,3 +106,16 @@ class BePersistent {
 }
 
 export { BePersistent }
+
+/**
+ * Normalizes the three shapes `store` accepts into a flat rule array: a bare
+ * USL string is shorthand for `{usl}` (`localProp`/`localEvent` default),
+ * a single rule becomes a one-element array, and an array passes through.
+ * @param {PersistenceRuleConfig} store
+ * @returns {PersistenceRule[]}
+ */
+function normalizeStore(store){
+    if(typeof store === 'string') return [{usl: store}];
+    if(Array.isArray(store)) return store;
+    return [store];
+}

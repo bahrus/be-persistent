@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmatic Store</title>
+    <!-- #include virtual="/imports.html" -->
+    <be-hive>
+        <script type=emc-parser
+                src="be-hive/parsers/parse-grouped-capture-statements.js"
+                parser-name=parse-grouped-capture-statements></script>
+        <script type=emc
+                src="be-persistent/emc.json"
+                wait-for-parsers=parse-grouped-capture-statements></script>
+    </be-hive>
+    <script type=module>
+        import 'be-hive/be-hive.js';
+    </script>
+</head>
+<body>
+    <!-- Bare attribute just to trigger the spawn and its default hydrate --
+         `store` is what actually gets exercised here, reassigned straight
+         from JS the way types/ImportantEnhancementAddendum.md describes,
+         with no further attribute parsing involved. -->
+    <input id=subject be-persistent>
+    <div id=target></div>
+    <script type=module>
+        const subject = document.getElementById('subject');
+        const target = document.getElementById('target');
+
+        function afterInitialHydrate(){
+            const enh = subject.enh?.bePersistent;
+            if(enh === undefined || enh.resolved !== true){
+                requestAnimationFrame(afterInitialHydrate);
+                return;
+            }
+            // String shorthand -- equivalent to {usl: '...'} with localProp
+            // ('value') and localEvent ('input') left at their defaults.
+            enh.store = 'sessionStorage://programmatic-store-test';
+            setTimeout(() => {
+                subject.value = 'hello';
+                subject.dispatchEvent(new Event('input', {bubbles: true}));
+                setTimeout(() => {
+                    if(sessionStorage.getItem('programmatic-store-test') === 'hello'){
+                        target.setAttribute('mark', 'good');
+                    }
+                }, 500);
+            }, 500);
+        }
+        afterInitialHydrate();
+    </script>
+</body>
+</html>

@@ -69,6 +69,50 @@ allowed) work for any event name.  The old `::` separator is no longer supported
 
 
 
+## Programmatic attachment
+
+The attribute syntax above is parsed into an internal `persistenceRules` prop
+that exists **only** to be transferred into `store` — the property `hydrate`
+actually reads. Frameworks that assign properties directly, rather than
+stringify/parse attributes, can skip attribute parsing entirely and assign
+`store` themselves:
+
+```js
+import { emc } from 'be-persistent/emc.json' with { type: 'json' };
+import { BePersistent } from 'be-persistent/be-persistent.js';
+emc.enhConfig.spawn = BePersistent;
+const persistenceEnhancement = oInput.enh.get(emc);
+persistenceEnhancement.store = 'sessionStorage://{autoGenId}';
+```
+
+`store` accepts three equivalent shapes — a bare USL string is shorthand for
+a single rule with `localProp`/`localEvent` at their defaults:
+
+```js
+// Shorthand: a bare USL string
+persistenceEnhancement.store = 'sessionStorage://{autoGenId}';
+
+// Equivalent single rule
+persistenceEnhancement.store = {
+    localProp: 'value',  // default
+    localEvent: 'input',  // default
+    usl: 'sessionStorage://{autoGenId}'
+};
+
+// Equivalent one-rule array -- multiple rules (one per statement in the
+// attribute form) are just a longer array
+persistenceEnhancement.store = [
+    {
+        localProp: 'value',
+        localEvent: 'input',
+        usl: 'sessionStorage://{autoGenId}'
+    }
+];
+```
+
+Reassigning `store` at any point (not just at spawn time) re-hydrates: prior
+listeners are torn down and new ones wired up against the new rule(s).
+
 ## Store to IDB
 
 ```html

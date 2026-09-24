@@ -48,10 +48,13 @@
                 "enhancedElement"
             ]
         },
+        "compacts": {
+            "when_persistenceRules_changes_call_onPersistenceRulesChange": 0
+        },
         "actions": {
             "hydrate": {
                 "ifKeyIn": [
-                    "persistenceRules",
+                    "store",
                     "initialized"
                 ],
                 "ifAllOf": [
