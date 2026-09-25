@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programmatic devHash</title>
+    <title>Programmatic devHash declarative in sequence</title>
     <!-- #include virtual="/imports.html" -->
 </head>
 <body>
@@ -11,8 +11,10 @@
     <script type=module>
         import {defBePersistent} from '/def.js';
         await defBePersistent(document.body);
+        //only the first call needs to use .set
+        //it triggers the attachment of the enhancement.
         input.enh.set.bePersistent.nudge = true;
-        input.enh.set.bePersistent.store = 'locationHash://{autoGenId}';
+        input.enh.bePersistent.store = 'locationHash://{autoGenId}';
         console.log(input.enh.bePersistent);
     </script>
 </body>
