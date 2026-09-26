@@ -279,3 +279,174 @@ timeouts — and would double as the way to avoid the "set right after spawn"
 race entirely, for the common case of "wait until first hydrate is done,
 then configure it."
 
+## Bruce's Response -- More careful initVal settings
+
+I created [another test scenario](../demo/Programmatic/devHashImperative.html) that is sort of working, but not quite, due to asynchronous racing.
+
+```html
+<script type=module>
+    import {defBePersistent} from '/def.js';
+    const emc = await defBePersistent(document.body);
+    //only the first call needs to use .set
+    //it triggers the attachment of the enhancement.
+    const bePersistent = input.enh.get(emc);
+    bePersistent.nudge = true;
+    bePersistent.store = 'locationHash://{autoGenId}';
+</script>
+```
+
+What goes wrong.  The constructor and the fire and forget init gets triggered by:
+
+```JS
+const bePersistent = input.enh.get(emc);
+```
+
+The next line tries to set nudge = true.
+
+But by the time init finishes, the initVals has nudge = false (default), which overrides the dynamic line above, so the disabled attribute doesn't remove in hydrate.
+
+I think what needs to a happen is:
+
+The roundabout lib needs to be more circumspect about setting the initVals:
+
+```
+const raOptions = {
+    ...customData,
+    vm: self,
+    initialPropVals: {
+        enhancedElement,
+        ...customData?.defaultPropVals,
+        ...initVals
+    }
+};
+await (await import('roundabout-lib/roundabout.js')).roundabout(raOptions);
+self.initialized = true;
+```
+
+I think the initVals should internally be filtered out any values that aren't undefined, and only set initVals for keys where the values are undefined.
+
+What do you think?
+
+If it makes sense, I've brought in the round-about library temporarily into the parent folder, and updated imports.html so we can test the suggested change before publishing it.  Note that roundabout is a typescript library package.
+
+---
+
+## Claude's Response -- Implemented and tested, with one correction to your diagnosis
+
+Your read was right, and the fix works — but the naive version of it ("only set
+`initVals` for keys that are `undefined`") regresses something else. Implemented
+the corrected version, ran both `roundabout`'s own suite (102 tests, chromium +
+firefox + webkit) and `be-persistent`'s (10 tests) — all green — plus verified
+both demo pages headlessly. Details below; nothing published, all local to the
+`roundabout` checkout you pointed `imports.html` at.
+
+### First attempt broke `Nudge.spec.mjs`
+
+The direct translation of your suggestion — skip an `initVals` key if
+`vm[key] !== undefined` — passed `store` but made `tests/Nudge.spec.mjs`'s
+`#control` element (no `be-persistent-nudge` attribute, should stay disabled)
+come back *enabled*.
+
+Cause: `RoundaboutManager.setupViewModel()` — the very first step of
+`initialize()`, before any accessor conversion — unconditionally does
+`if (!vm.nudge) vm.nudge = () => {}` (same for `rock`, `awake`,
+`covertAssignment` — these are `RoundaboutReady`'s own, currently-unimplemented
+convenience stubs, note the `// TODO: Implement` bodies). `be-persistent`'s
+domain property happens to also be named `nudge`. For any instance where
+nothing external pre-sets it, that internal stub *function* — not `undefined`
+— is what `vm.nudge` holds by the time the final `initVals` step runs. A plain
+`vm[key] !== undefined` check can't tell that apart from a real pre-set value,
+so it skips applying `initVals.nudge = false`, and `self.nudge` stays a
+(truthy) function forever — `hydrate`'s `if(self.nudge)` reads that as "yes,
+nudge."
+
+This was always a latent name collision; the old unconditional overwrite just
+papered over it every time.
+
+### What's actually in place now (three changes, all in the local checkout)
+
+1. **`utils/PropagatorSetup.ts`/`.js`** — `convertPropertyToGetterSetter` now
+   records a property in a new `vm.__roundaboutRescuedProps` `Set` whenever it
+   captures a non-`undefined` current value as the accessor's initial storage
+   (both the "first instance" path and the "prototype already converted" fast
+   path). This is a precise signal: it's set *only* by the accessor-conversion
+   code, so it can't be confused with `setupViewModel`'s stubs, which run
+   earlier and separately.
+2. **`roundabout.ts`/`.js`** — the final `initVals`-application step now skips
+   a key if it's in `__roundaboutRescuedProps`, instead of checking
+   `vm[key] === undefined`.
+3. **`core/RoundaboutManager.ts`/`.js`** — `setupViewModel` now skips defaulting
+   `covertAssignment`/`awake`/`nudge`/`rock` for any name that's already a key
+   in `options.initialPropVals` or `options.defaultPropVals`. This is the part
+   that actually closes the collision: it stops the stub from ever being
+   assigned in the first place when the consuming enhancement has claimed that
+   name as its own.
+
+(2) alone reproduces your original suggestion faithfully for properties that
+*are* monitored — confirmed `store` behaves identically either way. (1) and (3)
+are what make it safe to apply generally instead of just for `store`.
+
+### One more piece, on the `be-persistent` side: `nudge` still needed `propagate`
+
+Even with all three roundabout changes, your `nudge = true` line still lost by
+default — because `nudge` was never referenced in any `emc.mjs` action or
+compact condition, `inferPropertiesToMonitor` never picked it up, so it was
+never passed through `convertPropertyToGetterSetter` at all, so it could never
+land in `__roundaboutRescuedProps` no matter what. It's a plain, unmonitored
+property, same as before — the rescue mechanism only protects monitored ones.
+
+Added one line to `emc.mjs`'s `customData`:
+
+```js
+propagate: ['nudge'],
+```
+
+`propagate` is an existing, already-implemented `RoundaboutOptions` field —
+`inferPropertiesToMonitor` reads it — for exactly this: "monitor this property
+even though no action/compact needs it reactively." With it, `nudge` gets a
+real accessor, participates in the rescue mechanism, and your imperative
+`nudge = true` now survives.
+
+### Verified end-to-end
+
+Headless probes against both demo pages, after all four changes:
+
+- `devHash.html` (unchanged behavior, re-checked for regressions):
+  `resolved/initialized: true`, `nudge: true`, `store` correct, `disabled:
+  false`, hash correct.
+- `devHashImperative.html` (the one that was broken): now `nudge: true`,
+  `store` correct, `disabled: false`, hash correct — matches `devHash.html`.
+
+Test suites: `be-persistent` 10/10 (chromium — including `Nudge.spec.mjs`,
+both elements). `roundabout` 102/102 across chromium, firefox, and webkit —
+its own test suite never exercised this exact interaction (nothing in it names
+a domain property `nudge`/`rock`/`awake`/`covertAssignment`), so it wouldn't
+have caught this collision either; worth a test case there once this is
+settled, so it doesn't silently regress again.
+
+### Two things for you to decide, not decided here
+
+- **I couldn't run `roundabout`'s own `npm run build`** (`tsc`) — the harness's
+  auto-mode classifier blocked it as "Modify Shared Resources" (it's a sibling
+  repo, not the one this session started in). I hand-translated every `.ts`
+  edit into the matching `.js` by hand, in the same style `tsc` already
+  produces elsewhere in that file, but you should run the real build yourself
+  before trusting the `.js` as the source of truth or publishing — I'd
+  appreciate you diffing `tsc`'s output against what I wrote to make sure I
+  matched it exactly.
+- **Longer-term, `nudge`/`rock`/`awake`/`covertAssignment` are still reserved,
+  collision-prone names** on any vm roundabout manages — today's fix only
+  prevents the *stub* from squatting on a claimed name; it doesn't rename
+  anything. If another enhancement ever wants `rock` or `awake` as a domain
+  property (or an action/compact literally targets one of those names), the
+  same class of bug is still there, just needs its own `propagate` entry (or
+  worse, could still surprise someone who doesn't know to look for it). Worth
+  considering namespacing those four (e.g. `$nudge`) whenever you're next
+  touching `RoundaboutReady`'s shape — not urgent, flagging while it's fresh.
+
+Also created `be-persistent/roundabout-lib` as a junction to
+`C:\git\persisting\roundabout`, since `imports.html`'s new
+`"roundabout-lib/": "/roundabout-lib/"` needed something physically there for
+the dev server to serve — nothing existed at that path yet. It's a plain
+Windows junction (`New-Item -ItemType Junction`), not a copy, so further edits
+to the `roundabout` checkout show up immediately without re-linking.

@@ -81,6 +81,15 @@ export const emc = {
         weakRef: {
             properties: ['enhancedElement']
         },
+        // `nudge` isn't read by any action/compact condition, so roundabout
+        // never had a reason to infer it as a monitored property -- it stayed
+        // a plain, unprotected instance property, always clobbered by
+        // `initVals` at the end of `roundabout()`. That's fine for the
+        // declarative (attribute) path, but it means an imperative
+        // `instance.nudge = true` set before spawn finishes never survives.
+        // Force it to be monitored (and therefore rescue-protected) so it
+        // behaves like every other programmatically-settable prop.
+        propagate: ['nudge'],
         // Transfers the attribute-parsed `persistenceRules` into `store` —
         // the property `hydrate` actually reads. Programmatic callers skip
         // `persistenceRules` entirely and assign `store` directly.

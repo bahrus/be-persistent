@@ -48,6 +48,9 @@
                 "enhancedElement"
             ]
         },
+        "propagate": [
+            "nudge"
+        ],
         "compacts": {
             "when_persistenceRules_changes_call_onPersistenceRulesChange": 0
         },
