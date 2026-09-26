@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmatic Imperative</title>
+    <!-- #include virtual="/imports.html" -->
+</head>
+<body>
+    <!-- Fully imperative attachment: no attribute, no `.set` proxy -- just
+         `enh.get(emc)` plus a direct property assignment. -->
+    <input id="subject" disabled value="hello">
+    <div id="target"></div>
+    <script type=module>
+        import {defBePersistent} from '/def.js';
+        const emc = await defBePersistent(document.body);
+        const bePersistent = subject.enh.get(emc);
+        Object.assign(bePersistent, {
+            nudge: true,
+            store: 'sessionStorage://programmatic-imperative',
+        });
+        setTimeout(() => {
+            if(!subject.disabled && sessionStorage.getItem('programmatic-imperative') === 'hello'){
+                target.setAttribute('mark', 'good');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

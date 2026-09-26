@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmatic Declarative In Sequence</title>
+    <!-- #include virtual="/imports.html" -->
+</head>
+<body>
+    <!-- No be-persistent attribute at all -- the enhancement config is
+         registered first, then properties are set via the `.set` proxy. -->
+    <input id="subject" disabled value="hello">
+    <div id="target"></div>
+    <script type=module>
+        import {defBePersistent} from '/def.js';
+        await defBePersistent(document.body);
+        // Only the first `.set` access per enhKey needs to go through `.set` --
+        // it triggers attachment. Later property writes can go straight to
+        // `.enh.bePersistent`.
+        subject.enh.set.bePersistent.nudge = true;
+        subject.enh.bePersistent.store = 'sessionStorage://programmatic-in-sequence';
+        setTimeout(() => {
+            if(!subject.disabled && sessionStorage.getItem('programmatic-in-sequence') === 'hello'){
+                target.setAttribute('mark', 'good');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

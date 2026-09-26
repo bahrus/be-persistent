@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmatic Declarative Out Of Sequence</title>
+    <!-- #include virtual="/imports.html" -->
+</head>
+<body>
+    <!-- Properties are set via the `.set` proxy *before* the enhancement
+         config is even registered. `.set` creates a plain placeholder and
+         defers the real spawn until `defBePersistent` registers the config,
+         via EnhancementRegistry.whenDefined. -->
+    <input id="subject" disabled value="hello">
+    <div id="target"></div>
+    <script type=module>
+        import {defBePersistent} from '/def.js';
+        subject.enh.set.bePersistent.nudge = true;
+        subject.enh.bePersistent.store = 'sessionStorage://programmatic-out-of-sequence';
+        await defBePersistent(document.body);
+        setTimeout(() => {
+            if(!subject.disabled && sessionStorage.getItem('programmatic-out-of-sequence') === 'hello'){
+                target.setAttribute('mark', 'good');
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

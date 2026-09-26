@@ -71,19 +71,88 @@ allowed) work for any event name.  The old `::` separator is no longer supported
 
 ## Programmatic attachment
 
-The attribute syntax above is parsed into an internal `persistenceRules` prop
-that exists **only** to be transferred into `store` — the property `hydrate`
-actually reads. Frameworks that assign properties directly, rather than
-stringify/parse attributes, can skip attribute parsing entirely and assign
-`store` themselves:
+Attributes are the easy path for server-rendered progressive enhancement, but
+they're clunky from a framework that already has the values in hand as
+properties -- stringifying into a DSL just to have it parsed straight back out
+is wasted work, and awkward to express in JSX/templating syntaxes that don't
+love setting attributes. The attribute syntax further up this page is parsed
+into an internal `persistenceRules` prop that exists **only** to be
+transferred into `store` -- the property `hydrate` actually reads. No
+attribute needed: `store` (and `nudge`, [below](#nudging-disabled-elements-after-hydrating))
+are ordinary properties you can assign directly.
+
+Every pattern below starts by registering the enhancement's config once, via
+the same helper the tests and `demo/Programmatic/` pages use:
 
 ```js
-import { emc } from 'be-persistent/emc.json' with { type: 'json' };
-import { BePersistent } from 'be-persistent/be-persistent.js';
-emc.enhConfig.spawn = BePersistent;
-const persistenceEnhancement = oInput.enh.get(emc);
-persistenceEnhancement.store = 'sessionStorage://{autoGenId}';
+// def.js -- ships alongside be-persistent.js in the package
+import 'assign-gingerly/object-extension.js';
+
+export async function defBePersistent(ref){
+    const {default: emc} = await import('./emc.json', {with: {type: 'json'}});
+    return await push(ref, emc);
+}
+
+async function push(ref, emc){
+    const {BePersistent} = await import('./be-persistent.js');
+    const {enhConfig} = emc;
+    enhConfig.spawn = BePersistent;
+    enhConfig.customData = emc.customData;
+    const registry = (ref?.customElementRegistry ?? customElements).enhancementRegistry;
+    registry.push(enhConfig);
+    return enhConfig;
+}
 ```
+
+(`ref` is any element whose `customElementRegistry` you want to register
+against -- pass `document.body` for the page's default, global registry, or a
+shadow root's host for a scoped one.)
+
+### Declarative -- via the `enh.set` proxy
+
+Reads like setting properties on any other object. Only the *first* access per
+`enhKey` needs to go through `.set` -- it's what triggers the spawn; later
+reads/writes can go straight through `.enh.bePersistent`:
+
+```js
+import { defBePersistent } from 'be-persistent/def.js';
+
+await defBePersistent(document.body);
+oInput.enh.set.bePersistent.nudge = true;
+oInput.enh.bePersistent.store = 'sessionStorage://{autoGenId}';
+```
+
+This works regardless of order -- properties can be set *before*
+`defBePersistent` registers the config too:
+
+```js
+import { defBePersistent } from 'be-persistent/def.js';
+
+// Nothing's registered yet -- `.set` creates a placeholder and defers the
+// real spawn until the config shows up.
+oInput.enh.set.bePersistent.nudge = true;
+oInput.enh.bePersistent.store = 'sessionStorage://{autoGenId}';
+
+await defBePersistent(document.body);
+```
+
+### Imperative -- via `enh.get()`
+
+For code that wants a direct reference to the instance rather than working
+through the `.set` proxy:
+
+```js
+import { defBePersistent } from 'be-persistent/def.js';
+
+const emc = await defBePersistent(document.body);
+const persistenceEnhancement = oInput.enh.get(emc);
+Object.assign(persistenceEnhancement, {
+    nudge: true,
+    store: 'sessionStorage://{autoGenId}',
+});
+```
+
+### `store`'s three shapes
 
 `store` accepts three equivalent shapes — a bare USL string is shorthand for
 a single rule with `localProp`/`localEvent` at their defaults:
@@ -112,6 +181,10 @@ persistenceEnhancement.store = [
 
 Reassigning `store` at any point (not just at spawn time) re-hydrates: prior
 listeners are torn down and new ones wired up against the new rule(s).
+
+See `demo/Programmatic/` for complete, runnable pages, and
+`tests/Programmatic*.spec.mjs` for the automated coverage of all three
+patterns above.
 
 ## Store to IDB
 

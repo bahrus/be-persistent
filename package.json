@@ -19,6 +19,7 @@
     "./be-persistent.js": "./be-persistent.js",
     "./Binder.js": "./Binder.js",
     "./getAutoGenId.js": "./getAutoGenId.js",
+    "./def.js": "./def.js",
     "./emc.json": "./emc.json",
     "./💾.json": "./💾.json"
   },
@@ -27,7 +28,7 @@
   ],
   "types": "./types/be-persistent/types.d.ts",
   "dependencies": {
-    "assign-gingerly": "0.0.96",
+    "assign-gingerly": "0.0.97",
     "be-hive": "0.1.18",
     "fifteenth": "0.0.8",
     "mount-observer": "0.1.53",

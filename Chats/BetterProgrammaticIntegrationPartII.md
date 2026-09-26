@@ -293,3 +293,109 @@ Didn't touch the "Testing with `whenDefined`" section near the bottom of the
 README — that one's about `ItemscopeRegistry.whenDefined`, a different class
 with its own (unrelated, unchanged) `whenDefined`. Left it alone; flagging so
 it's clear I didn't miss it, not that I skipped checking it.
+
+## Bruce's Response -- Finishing Up Programmatic Integration
+
+I'm quite happy with the progress we've made with supporting programmatic integration. 
+
+Can you: 
+
+1.  Create Unit Tests based on the demo/Programmatic examples.
+2.  Documenting in README.md how to attach the enhancement programmatically without the need for attributes (in fact, they are clunky in such scenarios)
+3.  Update [Important Enhancement Addendum](../types/ImportantEnhancementAddendum.md) with documentation on what to do to make the enhancement compatible with programmatic attachment, including the extra await in the init, the def.js file.
+4.  Link [New Enhancement Instructions](../types/NewEnhancementInstructions.md) and [Enhancement Conversion Instructions](../types/EnhancementConversionInstructions.md) to the Addendum.
+
+---
+
+## Implementation Notes
+
+### An environment surprise, caught by the tests before anything else
+
+Before any of the four items: the `roundabout` and `assign-gingerly` sibling
+checkouts you'd brought in for local testing were both gone when I picked this
+back up — and `be-persistent/imports.html` was still pointing at the
+`assign-gingerly` one, so every single test failed on `npm test` (universal
+failure, not just the new ones). Checked npm before assuming anything was
+wrong: `assign-gingerly@0.0.97` was published today, byte-identical to what
+we'd hand-written together in Part II (`whenDefined` extension + the `.set`
+fallback). Looks like you published and cleaned up the temp checkouts, which
+makes total sense — just hadn't been wired back into `be-persistent` yet.
+Fixed by:
+
+- Bumping `package.json`'s `assign-gingerly` dependency to `0.0.97` and
+  running `npm install` (`roundabout-lib` was already correctly on a
+  published version with the Part I fix — that one didn't need touching).
+- Reverting `imports.html`'s `assign-gingerly/` mapping back to
+  `/node_modules/assign-gingerly/`.
+- Removing both now-dangling junctions (`roundabout-lib`, `assign-gingerly`)
+  from the project root.
+
+All 13 tests green afterward. Flagging this mostly so the "why did this
+suddenly all fail" moment doesn't repeat — nothing wrong with what you did,
+just a step that hadn't been carried through to this repo yet.
+
+### 1. Unit tests
+
+Three new pairs under `tests/`, one per `demo/Programmatic/` page, following
+the existing `tests/*.html` + `tests/*.spec.mjs` convention (a `#target` div
+marked `mark=good` once conditions hold, asserted via
+`toHaveAttribute`) rather than reusing the demo pages directly — same pattern
+every other test in this repo already follows:
+
+- `ProgrammaticDeclarativeInSequence` — register, then `.set`.
+- `ProgrammaticDeclarativeOutOfSequence` — `.set` before registration (the
+  deferred-spawn path from Part II).
+- `ProgrammaticImperative` — `enh.get()` + `Object.assign`.
+
+Each asserts both effects of a successful spawn: `nudge` actually flipping
+`disabled` off, and `store` actually landing in storage (used a literal
+`sessionStorage://` key rather than the demos' `locationHash://{autoGenId}`,
+to keep these tests about attachment mechanics rather than re-testing a USL
+protocol already covered elsewhere).
+
+### 2. README.md
+
+Rewrote the "Programmatic attachment" section (added back in Part I) to
+match what's actually shipped and tested now: leads with `def.js`/
+`defBePersistent` (not the raw `emc.json` + `enh.get()` sketch from the
+original ask, which is one layer lower than what a real consumer should
+reach for), then the two real patterns (declarative via `.set`, imperative via
+`.get()`), with the out-of-sequence note folded into the declarative one since
+it's the same call, just reordered. Kept the "`store`'s three shapes" material
+from Part I underneath, since it's still accurate and applies to both
+patterns equally.
+
+One gap this surfaced: `package.json`'s `exports` map never listed `./def.js`.
+Fine for this repo's own dev server (`be-persistent/` maps straight to `/` in
+`imports.html`, bypassing `exports` entirely) but would break `import
+'be-persistent/def.js'` for any real npm consumer. Added the entry.
+
+### 3. Important Enhancement Addendum
+
+Replaced the two stale, incomplete sketches (`emc.spawn = BePersistent` —
+superseded by `emc.enhConfig.spawn` back in Part I's corrected README — and
+the empty `import 'be-persistent/.js';` stub) with the two patterns as they
+actually work now, then a "Making an Enhancement Compatible" checklist
+covering everything Parts I and II actually found necessary:
+
+1. `init()` must `await roundabout(...)` — and why (the `initialized` timing
+   story from Part I).
+2. `ctx.emc || ctx.config` fallback — and why (the two spawn paths populate
+   `ctx` differently).
+3. Ship a `def.js` — the formulaic file itself, plus the `exports` map gap
+   above.
+4. The `nudge`/`rock`/`awake`/`covertAssignment` reserved-name collision, both
+   halves of the fix (the roundabout-lib change, and `propagate` for any
+   property nothing else already monitors).
+5. Pointer to the three test pairs as the pattern to clone for a new
+   enhancement.
+
+Linked back to both Chats docs at the top for the full "why," so the checklist
+doesn't have to re-explain reasoning that's already written down at length.
+
+### 4. Cross-links
+
+Added a one-line pointer to the Addendum in both `NewEnhancementInstructions.md`
+(in the intro, alongside the existing conversion-vs-new distinction) and
+`EnhancementConversionInstructions.md` (in the scope callout at the top,
+next to the existing cross-link to `NewEnhancementInstructions.md`).
