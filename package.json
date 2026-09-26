@@ -32,7 +32,7 @@
     "fifteenth": "0.0.8",
     "mount-observer": "0.1.53",
     "nested-regex-groups": "0.0.8",
-    "roundabout-lib": "0.0.36"
+    "roundabout-lib": "0.0.38"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
